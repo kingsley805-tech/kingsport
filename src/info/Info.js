@@ -165,7 +165,7 @@ export const info = {
         },
          {
             title: "Lixbel Studio",
-            live: "https://lixbe-studio-5oyd.vercel.app/",
+            live: "https://lixbelstudio.vercel.app/",
             source: "https://github.com/kingsley805-tech/LixbeStudio",
             image: mock
         },
