@@ -8,6 +8,7 @@ import mock4 from "../img/mockup4.png"
 import mock5 from "../img/mockup5.png"
 import mock6 from "../img/mockup6.png"
 import mock from "../img/mockup.png"
+import dasfan from "../img/dasfan.png"
 import mcube from "../img/mcube.png"
 
 /* Hi there! Thanks for checking out my portfolio template. Be sure to read the comments to get a better understanding of
@@ -174,6 +175,12 @@ export const info = {
             live: "https://mcubecollections.com/",
             source: "https://github.com/kingsley805-tech/mcubeweb",
             image: mcube
+        },
+         {
+            title: "Dasfan-Logistics",
+            live: "https://dasfan.vercel.app/",
+            source: "https://github.com/kingsley805-tech/dasfan",
+            image: dasfan
         },
        
     ]
