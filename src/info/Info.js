@@ -10,6 +10,7 @@ import mock6 from "../img/mockup6.png"
 import mock from "../img/mockup.png"
 import dasfan from "../img/dasfan.png"
 import mcube from "../img/mcube.png"
+import sleekBanner from "../img/sleekbanner.png"
 
 /* Hi there! Thanks for checking out my portfolio template. Be sure to read the comments to get a better understanding of
 how to make this template work best for you! */
@@ -181,6 +182,12 @@ export const info = {
             live: "https://dasfan.vercel.app/",
             source: "https://github.com/kingsley805-tech/dasfan",
             image: dasfan
+        },
+        {
+            title: "Sleek Launching Banner Page",
+            live: "https://sleeklaunching.vercel.app/",
+            source: "https://github.com/kingsley805-tech/sleeklaunchpage",
+            image: sleekBanner
         },
        
     ]
