@@ -5,7 +5,9 @@ import classNames from 'classnames';
 import EmojiBullet from "./EmojiBullet";
 import SocialIcon from "./SocialIcon";
 import { Box } from "@mui/material";
-import { info } from "../../info/Info";
+import { info, singlePage } from "../../info/Info";
+import { HashLink } from 'react-router-hash-link';
+import { Link as RouterLink } from 'react-router-dom';
 
 export default function Home({ innerRef }) {
 
@@ -36,14 +38,39 @@ export default function Home({ innerRef }) {
                   ))}
                </Box>
 
-               <Box className={Style.actions}>
-                  <a href="#portfolio" className={classNames(Style.button, Style.buttonPrimary)}>
-                     View my work
-                  </a>
-                  <a href="#about" className={classNames(Style.button, Style.buttonGhost)}>
-                     Learn more
-                  </a>
-               </Box>
+               {singlePage ? (
+                  <Box className={Style.actions}>
+                     <HashLink
+                        to="#portfolio"
+                        smooth
+                        className={classNames(Style.button, Style.buttonPrimary)}
+                     >
+                        View my works
+                     </HashLink>
+                     <HashLink
+                        to="#about"
+                        smooth
+                        className={classNames(Style.button, Style.buttonGhost)}
+                     >
+                        View more
+                     </HashLink>
+                  </Box>
+               ) : (
+                  <Box className={Style.actions}>
+                     <RouterLink
+                        to="/portfolio"
+                        className={classNames(Style.button, Style.buttonPrimary)}
+                     >
+                        View my works
+                     </RouterLink>
+                     <RouterLink
+                        to="/about"
+                        className={classNames(Style.button, Style.buttonGhost)}
+                     >
+                        View more
+                     </RouterLink>
+                  </Box>
+               )}
 
                <Box className={Style.socials}>
                   {info.socials.map((social, index) => (
