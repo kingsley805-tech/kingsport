@@ -4,35 +4,67 @@ import me from '../../img/me.png';
 import classNames from 'classnames';
 import EmojiBullet from "./EmojiBullet";
 import SocialIcon from "./SocialIcon";
-import {Box} from "@mui/material";
-import {info} from "../../info/Info";
+import { Box } from "@mui/material";
+import { info } from "../../info/Info";
 
-export default function Home({innerRef}) {
+export default function Home({ innerRef }) {
 
    return (
-      <Box ref={innerRef} component={'main'} display={'flex'} flexDirection={{xs: 'column', md: 'row'}} alignItems={'center'}
-           justifyContent={'center'} minHeight={'calc(100vh - 175px)'} id={'home'}>
-         <Box className={classNames(Style.avatar, Style.shadowed)} alt={'image of developer'} style={{background: info.gradient}} component={'img'} src={me} width={{xs: '37vh', md: '40vh'}}
-              height={{xs: '35vh', md: '40vh'}}
-              borderRadius={'50%'} p={'0.75rem'} mb={{xs: '1rem', sm: 0}} mr={{xs: 0, md: '2rem'}}/>
-         <Box>
-            <h1>Hi, I'm <span style={{background: info.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>{info.firstName}</span><span className={Style.hand}>🤚</span>
-            </h1>
-            <h2>I'm {info.position}.</h2>
-            <Box component={'ul'} p={'0.8rem'}>
-               {info.miniBio.map((bio, index) => (
-                  <EmojiBullet key={index} emoji={bio.emoji} text={bio.text}/>
-               ))}
+      <Box
+         ref={innerRef}
+         component={'main'}
+         id={'home'}
+         className={Style.hero}
+      >
+         <Box className={Style.heroInner}>
+            <Box className={Style.heroText}>
+               <p className={Style.eyebrow}>Portfolio · {info.position}</p>
+               <h1 className={Style.title}>
+                  Hi, I'm{" "}
+                  <span className={Style.gradientText}>
+                     {info.firstName}
+                  </span>
+                  <span className={Style.hand}>🤚</span>
+               </h1>
+               <h2 className={Style.subtitle}>
+                  I build clean, modern digital experiences that feel fast and intuitive.
+               </h2>
+
+               <Box component={'ul'} className={Style.bullets}>
+                  {info.miniBio.map((bio, index) => (
+                     <EmojiBullet key={index} emoji={bio.emoji} text={bio.text} />
+                  ))}
+               </Box>
+
+               <Box className={Style.actions}>
+                  <a href="#portfolio" className={classNames(Style.button, Style.buttonPrimary)}>
+                     View my work
+                  </a>
+                  <a href="#about" className={classNames(Style.button, Style.buttonGhost)}>
+                     Learn more
+                  </a>
+               </Box>
+
+               <Box className={Style.socials}>
+                  {info.socials.map((social, index) => (
+                     <SocialIcon key={index} link={social.link} icon={social.icon} label={social.label} />
+                  ))}
+               </Box>
             </Box>
-            <Box display={'flex'} gap={'1.5rem'} justifyContent={'center'} fontSize={{xs: '2rem', md: '2.5rem'}}>
-               {info.socials.map((social, index) => (
-                  <SocialIcon key={index} link={social.link} icon={social.icon} label={social.label} />
-               ))}
+
+            <Box className={Style.heroVisual}>
+               <Box
+                  className={classNames(Style.avatar, Style.shadowed)}
+                  component={'img'}
+                  src={me}
+                  alt={'Portrait of the developer'}
+               />
+               <Box className={Style.floatingCard}>
+                  <p className={Style.floatingLabel}>Currently available</p>
+                  <p className={Style.floatingText}>Open to frontend & full‑stack opportunities.</p>
+               </Box>
             </Box>
          </Box>
       </Box>
    )
 }
-
-
-

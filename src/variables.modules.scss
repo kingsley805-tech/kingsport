@@ -7,6 +7,9 @@ $yellow: #FFBD2E;
 $green: #27C93F;
 $lightgray: #c9c9c9;
 
+// Shared gradients
+$gradient: linear-gradient(135deg, $purple 0%, $pink 100%);
+
 $transition: all 250ms ease;
 
 .shadowed {

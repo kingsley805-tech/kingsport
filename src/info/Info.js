@@ -8,6 +8,8 @@ import mock4 from "../img/mockup4.png"
 import mock5 from "../img/mockup5.png"
 import mock6 from "../img/mockup6.png"
 import mock from "../img/mockup.png"
+import mockm from "..//img/mockupm.png"
+import mockschool from "../img/mockupsch1.png"
 import dasfan from "../img/dasfan.png"
 import mcube from "../img/mcube.png"
 import sleekBanner from "../img/sleekbanner.png"
@@ -136,6 +138,18 @@ export const info = {
             image: mock1
         },
         {
+            title: "School Management System",
+            live: "https://scholarstationhub.vercel.app/",
+            source: "https://github.com/School-Mangagement-Systems/Higher-Education-System-",
+            image: mockschool
+        },
+        {
+            title: "Flamingo College LTD",
+            live: "https://www.flamingocollege.education/",
+            source: "https://github.com/kingsley805-tech/Mingo",
+            image: mockm
+        },
+        {
             title: "Travelling & Tour(Frontend)",
             live: "https://poetic-twilight-5a4f9e.netlify.app/",
             source: "https://github.com/kingsley805-tech/Travelling-Agency",
@@ -160,7 +174,7 @@ export const info = {
             image: mock6
         },
         {
-            title: "Sleek Health System (Currently working on)",
+            title: "Sleek Health System (On It)",
             live: "",
             source: "",
             image: mock5
