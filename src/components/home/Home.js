@@ -29,7 +29,7 @@ export default function Home({ innerRef }) {
                   <span className={Style.hand}>🤚</span>
                </h1>
                <h2 className={Style.subtitle}>
-                  I build clean, modern digital experiences that feel fast and intuitive.
+                  I build clean, modern digital experiences that feel fast and intuitive...
                </h2>
 
                <Box component={'ul'} className={Style.bullets}>
