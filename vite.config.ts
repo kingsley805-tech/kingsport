@@ -13,6 +13,18 @@ export default defineConfig(({ mode }) => ({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  // Allow JSX syntax in .js files (legacy components) so builds don't fail.
+  esbuild: {
+    loader: 'jsx',
+    include: /src\/.*\.jsx?$/,
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      loader: {
+        '.js': 'jsx',
+      },
+    },
+  },
   server: {
     host: '::',
     port: 8080,
