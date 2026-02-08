@@ -1,49 +1,48 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Moon, Sun, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const navLinks = [
-  { name: 'Home', path: '/' },
-  { name: 'Portfolio', path: '/portfolio' },
+  { name: 'home', path: '/' },
+  { name: 'about me', path: '/about' },
+  { name: 'portfolio', path: '/portfolio' },
 ];
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('darkMode');
+    return saved ? JSON.parse(saved) : false;
+  });
   const location = useLocation();
   const { user, isAdmin, signOut } = useAuth();
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle('dark');
-  };
+  useEffect(() => {
+    localStorage.setItem('darkMode', JSON.stringify(darkMode));
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
+  const toggleDarkMode = () => setDarkMode(!darkMode);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass">
+    <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="text-2xl font-bold gradient-text"
-            >
-              KY
-            </motion.div>
-          </Link>
-
-          {/* Desktop Navigation */}
+          {/* Left nav items */}
           <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
+            {navLinks.slice(0, 2).map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
                 className={`relative py-2 text-sm font-medium transition-colors ${
                   location.pathname === link.path
-                    ? 'text-primary'
+                    ? 'text-foreground'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
@@ -57,17 +56,43 @@ export default function Navbar() {
                 )}
               </Link>
             ))}
+          </div>
+
+          {/* Logo */}
+          <Link to="/" className="font-mono text-2xl font-bold text-foreground">
+            js
+          </Link>
+
+          {/* Right nav items */}
+          <div className="hidden md:flex items-center gap-8">
+            <Link
+              to="/portfolio"
+              className={`relative py-2 text-sm font-medium transition-colors ${
+                location.pathname === '/portfolio'
+                  ? 'text-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              portfolio
+              {location.pathname === '/portfolio' && (
+                <motion.div
+                  layoutId="navbar-indicator"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+                  initial={false}
+                />
+              )}
+            </Link>
 
             {isAdmin && (
               <Link
                 to="/dashboard"
                 className={`relative py-2 text-sm font-medium transition-colors ${
                   location.pathname === '/dashboard'
-                    ? 'text-primary'
+                    ? 'text-foreground'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                Dashboard
+                dashboard
                 {location.pathname === '/dashboard' && (
                   <motion.div
                     layoutId="navbar-indicator"
@@ -80,7 +105,8 @@ export default function Navbar() {
 
             <button
               onClick={toggleDarkMode}
-              className="p-2 rounded-lg hover:bg-muted transition-colors"
+              className="p-2 rounded-full bg-secondary hover:bg-secondary/80 transition-colors"
+              aria-label="Toggle dark mode"
             >
               {darkMode ? <Sun size={20} /> : <Moon size={20} />}
             </button>
