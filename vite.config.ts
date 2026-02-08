@@ -15,14 +15,30 @@ export default defineConfig(({ mode }) => ({
   },
   // Allow JSX syntax in .js files (legacy components) so builds don't fail.
   esbuild: {
+    include: /\.jsx?$/,
     loader: 'jsx',
-    include: /src\/.*\.jsx?$/,
   },
   optimizeDeps: {
     esbuildOptions: {
       loader: {
         '.js': 'jsx',
       },
+    },
+  },
+  build: {
+    rollupOptions: {
+      plugins: [
+        {
+          name: 'treat-js-files-as-jsx',
+          async transform(code, id) {
+            if (!id.match(/src\/.*\.js$/)) return null;
+            return {
+              code,
+              map: null,
+            };
+          },
+        },
+      ],
     },
   },
   server: {
