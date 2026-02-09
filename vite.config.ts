@@ -13,10 +13,11 @@ export default defineConfig(({ mode }) => ({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  // Allow JSX syntax in .js files (legacy components) so builds don't fail.
+  // Transpile all source files (JS/TS/JSX/TSX) with a TSX-capable loader.
+  // This keeps legacy .js files with JSX working without breaking TypeScript parsing.
   esbuild: {
-    include: /\.jsx?$/,
-    loader: 'jsx',
+    include: /src\/.*\.[jt]sx?$/,
+    loader: 'tsx',
   },
   optimizeDeps: {
     esbuildOptions: {
