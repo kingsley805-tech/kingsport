@@ -17,89 +17,154 @@ const hobbies = [
   { emoji: '🌶', label: 'cooking' },
 ];
 
-const TerminalWindow = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => (
+interface TerminalWindowProps {
+  children: React.ReactNode;
+  delay?: number;
+}
+
+const TerminalWindow = ({ children, delay = 0 }: TerminalWindowProps) => (
   <motion.div
-    initial={{ opacity: 0, y: 20 }}
+    initial={{ opacity: 0, y: 30 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.6, delay }}
-    className="terminal"
+    transition={{ duration: 0.5, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
+    className="rounded-lg overflow-hidden bg-[#1e1e1e] border border-[#333] shadow-xl"
   >
-    <div className="terminal-header">
-      <div className="terminal-dot bg-red-500" />
-      <div className="terminal-dot bg-yellow-500" />
-      <div className="terminal-dot bg-green-500" />
+    {/* Terminal Header */}
+    <div className="flex items-center gap-2 px-4 py-3 bg-[#2d2d2d] border-b border-[#333]">
+      <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
+      <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
+      <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
     </div>
-    <div className="terminal-body">{children}</div>
+    {/* Terminal Body */}
+    <div className="p-6 font-mono text-sm leading-relaxed">
+      {children}
+    </div>
   </motion.div>
+);
+
+const TerminalLine = ({ children }: { children: React.ReactNode }) => (
+  <div className="mb-2">{children}</div>
+);
+
+const Prompt = ({ children }: { children: React.ReactNode }) => (
+  <span className="text-[#9d7cd8]">{children}</span>
+);
+
+const Command = ({ children }: { children: React.ReactNode }) => (
+  <span className="text-[#e0e0e0]"> {children}</span>
+);
+
+const Branch = ({ children }: { children: React.ReactNode }) => (
+  <span className="text-[#7dcfff]">{children}</span>
+);
+
+const Output = ({ children }: { children: React.ReactNode }) => (
+  <span className="text-[#e0af68]">{children}</span>
+);
+
+const SectionLabel = ({ children }: { children: React.ReactNode }) => (
+  <span className="text-[#73daca]">{children}</span>
 );
 
 export default function About() {
   return (
-    <section className="min-h-[calc(100vh-8rem)] py-24">
-      <div className="container mx-auto px-6 max-w-4xl space-y-8">
-        {/* About terminal */}
-        <TerminalWindow>
-          <div className="space-y-4">
-            <p>
-              <span className="terminal-prompt">kingsleyyeboah $</span> cat aboutkingsley
-            </p>
-            <p>
-              <span className="terminal-branch">aboutkingsley (main) $</span>{' '}
-              <span className="terminal-output">
-                Hello! I'm Kingsley. I'm a software engineer. I studied CompSci at University of the people, 
-                I enjoy long walks on the beach, and I believe artificial intelligence will inevitably rule us all one day. 
-                You should hire me!
-              </span>
-            </p>
+    <section className="min-h-[calc(100vh-6rem)] py-16 md:py-24">
+      <div className="container mx-auto px-4 md:px-6 max-w-3xl space-y-6">
+        {/* About Me Terminal */}
+        <TerminalWindow delay={0}>
+          <TerminalLine>
+            <Prompt>kingsleyyeboah $</Prompt>
+            <Command>cat aboutkingsley</Command>
+          </TerminalLine>
+          <TerminalLine>
+            <Branch>aboutkingsley (main) $</Branch>
+          </TerminalLine>
+          <div className="mt-4 pl-0 text-[#c0c0c0] leading-relaxed">
+            <Output>
+              Hello! I'm Kingsley. I'm a software engineer. I studied CompSci at University of the people, 
+              I enjoy long walks on the beach, and I believe artificial intelligence will inevitably rule us all one day. 
+              You should hire me!
+            </Output>
           </div>
         </TerminalWindow>
 
-        {/* Skills terminal */}
-        <TerminalWindow delay={0.2}>
-          <div className="space-y-6">
-            <p>
-              <span className="terminal-prompt">kingsleyyeboah $</span> cd skills/tools
-            </p>
-            <p>
-              <span className="terminal-branch">skills/tools (main) $</span> ls
-            </p>
-            
+        {/* Skills Terminal */}
+        <TerminalWindow delay={0.15}>
+          <TerminalLine>
+            <Prompt>kingsleyyeboah $</Prompt>
+            <Command>cd skills/tools</Command>
+          </TerminalLine>
+          <TerminalLine>
+            <Branch>skills/tools (main) $</Branch>
+            <Command>ls</Command>
+          </TerminalLine>
+          
+          <div className="mt-6 space-y-6">
+            {/* Frontend Skills */}
             <div>
-              <p className="terminal-prompt mb-3">proficient FrontEnd With</p>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              <div className="mb-3">
+                <SectionLabel>Proficient FrontEnd With</SectionLabel>
+              </div>
+              <div className="flex flex-wrap gap-x-4 gap-y-2">
                 {frontendSkills.map((skill) => (
-                  <span key={skill} className="text-muted-foreground">{skill}</span>
+                  <motion.span
+                    key={skill}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-[#a0a0a0] hover:text-[#9d7cd8] transition-colors cursor-default"
+                  >
+                    {skill}
+                  </motion.span>
                 ))}
               </div>
             </div>
 
+            {/* Backend Skills */}
             <div>
-              <p className="terminal-prompt mb-3">proficient Backend With</p>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              <div className="mb-3">
+                <SectionLabel>Proficient Backend With</SectionLabel>
+              </div>
+              <div className="flex flex-wrap gap-x-4 gap-y-2">
                 {backendSkills.map((skill) => (
-                  <span key={skill} className="text-muted-foreground">{skill}</span>
+                  <motion.span
+                    key={skill}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.35 }}
+                    className="text-[#a0a0a0] hover:text-[#9d7cd8] transition-colors cursor-default"
+                  >
+                    {skill}
+                  </motion.span>
                 ))}
               </div>
             </div>
           </div>
         </TerminalWindow>
 
-        {/* Hobbies terminal */}
-        <TerminalWindow delay={0.4}>
-          <div className="space-y-4">
-            <p>
-              <span className="terminal-prompt">kingsleyyeboah $</span> cd hobbies/interests
-            </p>
-            <p>
-              <span className="terminal-branch">hobbies/interests (main) $</span> ls
-            </p>
-            <div className="flex flex-wrap gap-4">
-              {hobbies.map(({ emoji, label }) => (
-                <span key={label} className="text-muted-foreground">
-                  {emoji} {label}
-                </span>
-              ))}
-            </div>
+        {/* Hobbies Terminal */}
+        <TerminalWindow delay={0.3}>
+          <TerminalLine>
+            <Prompt>kingsleyyeboah $</Prompt>
+            <Command>cd hobbies/interests</Command>
+          </TerminalLine>
+          <TerminalLine>
+            <Branch>hobbies/interests (main) $</Branch>
+            <Command>ls</Command>
+          </TerminalLine>
+          
+          <div className="mt-4 flex flex-wrap gap-4">
+            {hobbies.map(({ emoji, label }, index) => (
+              <motion.span
+                key={label}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 + index * 0.1 }}
+                className="text-[#a0a0a0] hover:text-white transition-colors cursor-default"
+              >
+                {emoji} {label}
+              </motion.span>
+            ))}
           </div>
         </TerminalWindow>
       </div>
