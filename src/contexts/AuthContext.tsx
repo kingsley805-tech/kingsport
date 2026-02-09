@@ -20,11 +20,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const checkAdminStatus = async (userId: string) => {
-    const { data } = await supabase
-      .from('admin_users')
-      .select('id')
-      .eq('id', userId)
-      .single();
+    // Use the secure is_admin() function instead of querying the table directly
+    const { data } = await supabase.rpc('is_admin', { _user_id: userId });
     setIsAdmin(!!data);
   };
 
