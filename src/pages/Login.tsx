@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Lock, Mail, AlertCircle } from 'lucide-react';
@@ -11,7 +11,14 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { signIn } = useAuth();
+  const { signIn, user, isAdmin, loading: authLoading } = useAuth();
+
+  // Redirect to dashboard once auth state confirms admin
+  useEffect(() => {
+    if (!authLoading && user && isAdmin) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, isAdmin, authLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,13 +31,13 @@ export default function Login() {
       if (error) {
         setError(error.message);
         toast.error('Login failed');
+        setLoading(false);
       } else {
         toast.success('Welcome back!');
-        navigate('/dashboard');
+        // Navigation handled by useEffect above
       }
     } catch (err) {
       setError('An unexpected error occurred');
-    } finally {
       setLoading(false);
     }
   };
