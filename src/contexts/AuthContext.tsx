@@ -26,8 +26,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
+    let initialSessionHandled = false;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
+        // Skip if this is the initial session event — handled by getSession below
+        if (!initialSessionHandled) return;
+        
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -40,6 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     );
 
+    // Handle initial session explicitly to avoid race conditions
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -48,6 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await checkAdminStatus(session.user.id);
       }
       setLoading(false);
+      initialSessionHandled = true;
     });
 
     return () => subscription.unsubscribe();
