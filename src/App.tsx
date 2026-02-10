@@ -5,7 +5,7 @@ import About from './pages/About';
 import Portfolio from './pages/Portfolio';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
-import Signup from './pages/Signup';
+
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
 
@@ -19,7 +19,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/portfolio" element={<Portfolio />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
+          
           <Route
             path="/dashboard"
             element={
