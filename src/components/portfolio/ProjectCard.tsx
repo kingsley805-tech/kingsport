@@ -1,7 +1,9 @@
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { Github, ExternalLink } from 'lucide-react';
+import { useState } from 'react';
+import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
+import { ExternalLink, Lock } from 'lucide-react';
 import ProjectPreview from './ProjectPreview';
 import TechBadge from './TechBadge';
+import GitHubAccessRequestModal from './GitHubAccessRequestModal';
 
 interface Project {
   id: string;
@@ -20,6 +22,7 @@ interface ProjectCardProps {
 }
 
 export default function ProjectCard({ project, index }: ProjectCardProps) {
+  const [showAccessModal, setShowAccessModal] = useState(false);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
@@ -116,19 +119,28 @@ export default function ProjectCard({ project, index }: ProjectCardProps) {
             Live Project
           </motion.a>
           
-          <motion.a
-            href={project.github_url}
-            target="_blank"
-            rel="noopener noreferrer"
+          <motion.button
+            onClick={() => setShowAccessModal(true)}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-border rounded-lg font-medium hover:bg-muted transition-colors"
           >
-            <Github size={16} />
-            View Code
-          </motion.a>
+            <Lock size={16} />
+            Request Code
+          </motion.button>
         </div>
       </div>
+
+      <AnimatePresence>
+        {showAccessModal && (
+          <GitHubAccessRequestModal
+            projectId={project.id}
+            projectTitle={project.title}
+            requestType="project_code"
+            onClose={() => setShowAccessModal(false)}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

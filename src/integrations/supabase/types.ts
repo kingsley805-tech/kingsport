@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      about_content: {
+        Row: {
+          content: Json
+          id: string
+          section_key: string
+          updated_at: string
+        }
+        Insert: {
+          content?: Json
+          id?: string
+          section_key: string
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          id?: string
+          section_key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       admin_users: {
         Row: {
           created_at: string
@@ -31,6 +52,50 @@ export type Database = {
           id?: string
         }
         Relationships: []
+      }
+      github_access_requests: {
+        Row: {
+          created_at: string
+          id: string
+          message: string | null
+          project_id: string | null
+          request_type: string
+          requester_email: string
+          requester_name: string
+          responded_at: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          project_id?: string | null
+          request_type?: string
+          requester_email: string
+          requester_name: string
+          responded_at?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          project_id?: string | null
+          request_type?: string
+          requester_email?: string
+          requester_name?: string
+          responded_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "github_access_requests_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       projects: {
         Row: {
