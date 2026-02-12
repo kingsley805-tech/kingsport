@@ -1,21 +1,7 @@
 import { motion } from 'framer-motion';
-
-const frontendSkills = [
-  'javascript', 'react', 'Typescript', 'Nextjs', 'git', 'github',
-  'bootstrap', 'html5', 'css3', 'figma', 'tailwindcss', 'React-Native',
-  'Wordpress', 'Material-UI'
-];
-
-const backendSkills = [
-  'nodejs', 'Expressjs', 'Postgresql', 'Mysql', 'MongoDB', 'python', 'PHP', 'Laravel'
-];
-
-const hobbies = [
-  { emoji: '📖', label: 'reading' },
-  { emoji: '🎭', label: 'theater' },
-  { emoji: '🎥', label: 'movies' },
-  { emoji: '🌶', label: 'cooking' },
-];
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Loader2 } from 'lucide-react';
 
 interface TerminalWindowProps {
   children: React.ReactNode;
@@ -29,13 +15,11 @@ const TerminalWindow = ({ children, delay = 0 }: TerminalWindowProps) => (
     transition={{ duration: 0.5, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
     className="rounded-lg overflow-hidden bg-[#1e1e1e] border border-[#333] shadow-xl"
   >
-    {/* Terminal Header */}
     <div className="flex items-center gap-2 px-4 py-3 bg-[#2d2d2d] border-b border-[#333]">
       <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
       <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
       <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
     </div>
-    {/* Terminal Body */}
     <div className="p-6 font-mono text-sm leading-relaxed">
       {children}
     </div>
@@ -66,7 +50,50 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
   <span className="text-[#73daca]">{children}</span>
 );
 
+// Fallback data
+const defaultBio = "Hello! I'm Kingsley. I'm a software engineer. I studied CompSci at University of the people, I enjoy long walks on the beach, and I believe artificial intelligence will inevitably rule us all one day. You should hire me!";
+const defaultFrontend = ['javascript', 'react', 'Typescript', 'Nextjs', 'git', 'github', 'bootstrap', 'html5', 'css3', 'figma', 'tailwindcss', 'React-Native', 'Wordpress', 'Material-UI'];
+const defaultBackend = ['nodejs', 'Expressjs', 'Postgresql', 'Mysql', 'MongoDB', 'python', 'PHP', 'Laravel'];
+const defaultHobbies = [
+  { emoji: '📖', label: 'reading' },
+  { emoji: '🎭', label: 'theater' },
+  { emoji: '🎥', label: 'movies' },
+  { emoji: '🌶', label: 'cooking' },
+];
+
 export default function About() {
+  const { data: sections, isLoading } = useQuery({
+    queryKey: ['about_content'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('about_content')
+        .select('*');
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const bioSection = sections?.find(s => s.section_key === 'bio');
+  const skillsSection = sections?.find(s => s.section_key === 'skills');
+  const hobbiesSection = sections?.find(s => s.section_key === 'hobbies');
+
+  const bio = (bioSection?.content as any)?.text ?? defaultBio;
+  const frontendSkills: string[] = (skillsSection?.content as any)?.frontend ?? defaultFrontend;
+  const backendSkills: string[] = (skillsSection?.content as any)?.backend ?? defaultBackend;
+  
+  const hobbiesRaw = (hobbiesSection?.content as any)?.items;
+  const hobbies: { emoji: string; label: string }[] = Array.isArray(hobbiesRaw)
+    ? hobbiesRaw.map((h: any) => typeof h === 'string' ? { emoji: '•', label: h } : h)
+    : defaultHobbies;
+
+  if (isLoading) {
+    return (
+      <section className="min-h-[calc(100vh-6rem)] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </section>
+    );
+  }
+
   return (
     <section className="min-h-[calc(100vh-6rem)] py-16 md:py-24">
       <div className="container mx-auto px-4 md:px-6 max-w-3xl space-y-6">
@@ -80,11 +107,7 @@ export default function About() {
             <Branch>aboutkingsley (main) $</Branch>
           </TerminalLine>
           <div className="mt-4 pl-0 text-[#c0c0c0] leading-relaxed">
-            <Output>
-              Hello! I'm Kingsley. I'm a software engineer. I studied CompSci at University of the people, 
-              I enjoy long walks on the beach, and I believe artificial intelligence will inevitably rule us all one day. 
-              You should hire me!
-            </Output>
+            <Output>{bio}</Output>
           </div>
         </TerminalWindow>
 
@@ -100,7 +123,6 @@ export default function About() {
           </TerminalLine>
           
           <div className="mt-6 space-y-6">
-            {/* Frontend Skills */}
             <div>
               <div className="mb-3">
                 <SectionLabel>Proficient FrontEnd With</SectionLabel>
@@ -120,7 +142,6 @@ export default function About() {
               </div>
             </div>
 
-            {/* Backend Skills */}
             <div>
               <div className="mb-3">
                 <SectionLabel>Proficient Backend With</SectionLabel>
