@@ -60,8 +60,7 @@ export default function Dashboard() {
       const { data, error } = await supabase
         .from('projects')
         .insert(project)
-        .select()
-        .single();
+        .select();
       if (error) throw error;
       return data;
     },
@@ -81,8 +80,7 @@ export default function Dashboard() {
         .from('projects')
         .update(project)
         .eq('id', id)
-        .select()
-        .single();
+        .select();
       if (error) throw error;
       return data;
     },

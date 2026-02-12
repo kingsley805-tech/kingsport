@@ -62,17 +62,13 @@ export default function AboutEditor() {
         onSave={(content) => updateMutation.mutate({ section_key: 'bio', content })}
         isSaving={updateMutation.isPending}
       />
-      <ListEditor
-        title="Skills"
-        icon={<Code size={18} />}
-        items={(skillsSection?.content as { items?: string[] })?.items ?? []}
-        onSave={(items) => updateMutation.mutate({ section_key: 'skills', content: { items } })}
+      <SkillsEditor
+        skills={skillsSection?.content as { frontend?: string[]; backend?: string[] } | undefined}
+        onSave={(content) => updateMutation.mutate({ section_key: 'skills', content })}
         isSaving={updateMutation.isPending}
       />
-      <ListEditor
-        title="Hobbies"
-        icon={<Gamepad2 size={18} />}
-        items={(hobbiesSection?.content as { items?: string[] })?.items ?? []}
+      <HobbiesEditor
+        hobbies={(hobbiesSection?.content as { items?: { emoji: string; label: string }[] })?.items ?? []}
         onSave={(items) => updateMutation.mutate({ section_key: 'hobbies', content: { items } })}
         isSaving={updateMutation.isPending}
       />
@@ -141,68 +137,191 @@ function BioEditor({
   );
 }
 
-function ListEditor({
-  title,
-  icon,
-  items: initialItems,
+function SkillsEditor({
+  skills,
   onSave,
   isSaving,
 }: {
-  title: string;
-  icon: React.ReactNode;
-  items: string[];
-  onSave: (items: string[]) => void;
+  skills?: { frontend?: string[]; backend?: string[] };
+  onSave: (content: { frontend: string[]; backend: string[] }) => void;
   isSaving: boolean;
 }) {
-  const [items, setItems] = useState<string[]>(initialItems);
-  const [newItem, setNewItem] = useState('');
+  const [frontend, setFrontend] = useState<string[]>(skills?.frontend ?? []);
+  const [backend, setBackend] = useState<string[]>(skills?.backend ?? []);
+  const [newFrontend, setNewFrontend] = useState('');
+  const [newBackend, setNewBackend] = useState('');
 
   useEffect(() => {
-    setItems(initialItems);
-  }, [initialItems]);
-
-  const addItem = () => {
-    const trimmed = newItem.trim();
-    if (trimmed && !items.includes(trimmed)) {
-      setItems([...items, trimmed]);
-      setNewItem('');
+    if (skills) {
+      setFrontend(skills.frontend ?? []);
+      setBackend(skills.backend ?? []);
     }
-  };
+  }, [skills]);
 
-  const removeItem = (item: string) => {
-    setItems(items.filter(i => i !== item));
+  const addSkill = (type: 'frontend' | 'backend') => {
+    if (type === 'frontend') {
+      const trimmed = newFrontend.trim();
+      if (trimmed && !frontend.includes(trimmed)) {
+        setFrontend([...frontend, trimmed]);
+        setNewFrontend('');
+      }
+    } else {
+      const trimmed = newBackend.trim();
+      if (trimmed && !backend.includes(trimmed)) {
+        setBackend([...backend, trimmed]);
+        setNewBackend('');
+      }
+    }
   };
 
   return (
     <div className="bg-card border border-border rounded-xl p-6">
       <div className="flex items-center gap-2 mb-4">
-        <span className="text-primary">{icon}</span>
-        <h3 className="font-semibold text-lg">{title}</h3>
+        <Code size={18} className="text-primary" />
+        <h3 className="font-semibold text-lg">Skills</h3>
+      </div>
+      <div className="space-y-6">
+        {/* Frontend */}
+        <div>
+          <label className="block text-sm font-medium mb-2">Frontend Skills</label>
+          <div className="flex gap-2 mb-3">
+            <input
+              type="text"
+              value={newFrontend}
+              onChange={(e) => setNewFrontend(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill('frontend'))}
+              placeholder="Add frontend skill..."
+              className="flex-1 px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+            />
+            <button
+              onClick={() => addSkill('frontend')}
+              className="px-4 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+            >
+              <Plus size={16} />
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {frontend.map((item) => (
+              <span key={item} className="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
+                {item}
+                <button onClick={() => setFrontend(frontend.filter(i => i !== item))} className="hover:text-destructive transition-colors">
+                  <X size={14} />
+                </button>
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Backend */}
+        <div>
+          <label className="block text-sm font-medium mb-2">Backend Skills</label>
+          <div className="flex gap-2 mb-3">
+            <input
+              type="text"
+              value={newBackend}
+              onChange={(e) => setNewBackend(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill('backend'))}
+              placeholder="Add backend skill..."
+              className="flex-1 px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+            />
+            <button
+              onClick={() => addSkill('backend')}
+              className="px-4 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+            >
+              <Plus size={16} />
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {backend.map((item) => (
+              <span key={item} className="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
+                {item}
+                <button onClick={() => setBackend(backend.filter(i => i !== item))} className="hover:text-destructive transition-colors">
+                  <X size={14} />
+                </button>
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => onSave({ frontend, backend })}
+          disabled={isSaving}
+          className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+        >
+          <Save size={16} />
+          Save Skills
+        </motion.button>
+      </div>
+    </div>
+  );
+}
+
+function HobbiesEditor({
+  hobbies: initialHobbies,
+  onSave,
+  isSaving,
+}: {
+  hobbies: { emoji: string; label: string }[];
+  onSave: (items: { emoji: string; label: string }[]) => void;
+  isSaving: boolean;
+}) {
+  const [hobbies, setHobbies] = useState(initialHobbies);
+  const [newEmoji, setNewEmoji] = useState('');
+  const [newLabel, setNewLabel] = useState('');
+
+  useEffect(() => {
+    setHobbies(initialHobbies);
+  }, [initialHobbies]);
+
+  const addHobby = () => {
+    const emoji = newEmoji.trim() || '•';
+    const label = newLabel.trim();
+    if (label && !hobbies.some(h => h.label === label)) {
+      setHobbies([...hobbies, { emoji, label }]);
+      setNewEmoji('');
+      setNewLabel('');
+    }
+  };
+
+  return (
+    <div className="bg-card border border-border rounded-xl p-6">
+      <div className="flex items-center gap-2 mb-4">
+        <Gamepad2 size={18} className="text-primary" />
+        <h3 className="font-semibold text-lg">Hobbies</h3>
       </div>
       <div className="flex gap-2 mb-3">
         <input
           type="text"
-          value={newItem}
-          onChange={(e) => setNewItem(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addItem())}
-          placeholder={`Add ${title.toLowerCase()}...`}
+          value={newEmoji}
+          onChange={(e) => setNewEmoji(e.target.value)}
+          placeholder="🎮"
+          className="w-16 px-3 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-center"
+        />
+        <input
+          type="text"
+          value={newLabel}
+          onChange={(e) => setNewLabel(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addHobby())}
+          placeholder="Add hobby..."
           className="flex-1 px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
         />
         <button
-          onClick={addItem}
+          onClick={addHobby}
           className="px-4 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
         >
           <Plus size={16} />
         </button>
       </div>
       <div className="flex flex-wrap gap-2 mb-4">
-        {items.map((item) => (
+        {hobbies.map((hobby) => (
           <span
-            key={item}
+            key={hobby.label}
             className="inline-flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm"
           >
-            {item}
-            <button onClick={() => removeItem(item)} className="hover:text-destructive transition-colors">
+            {hobby.emoji} {hobby.label}
+            <button onClick={() => setHobbies(hobbies.filter(h => h.label !== hobby.label))} className="hover:text-destructive transition-colors">
               <X size={14} />
             </button>
           </span>
@@ -211,12 +330,12 @@ function ListEditor({
       <motion.button
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
-        onClick={() => onSave(items)}
+        onClick={() => onSave(hobbies)}
         disabled={isSaving}
         className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
       >
         <Save size={16} />
-        Save {title}
+        Save Hobbies
       </motion.button>
     </div>
   );
