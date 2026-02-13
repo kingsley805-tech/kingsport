@@ -30,7 +30,12 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
+  server: {
+    host: '::',
+    port: 8080,
+  },
   build: {
+    outDir: 'build',
     rollupOptions: {
       plugins: [
         {
@@ -45,9 +50,5 @@ export default defineConfig(({ mode }) => ({
         },
       ],
     },
-  },
-  server: {
-    host: '::',
-    port: 8080,
   },
 }));
