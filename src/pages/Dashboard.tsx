@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, LayoutDashboard, FolderOpen, User, Bell } from 'lucide-react';
@@ -9,6 +9,7 @@ import ProjectFormModal from '@/components/dashboard/ProjectFormModal';
 import DeleteConfirmModal from '@/components/dashboard/DeleteConfirmModal';
 import AboutEditor from '@/components/dashboard/AboutEditor';
 import AccessRequestsPanel from '@/components/dashboard/AccessRequestsPanel';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Project {
   id: string;
@@ -25,6 +26,7 @@ type Tab = 'projects' | 'about' | 'requests';
 
 export default function Dashboard() {
   const queryClient = useQueryClient();
+  const { user, isAdmin } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('projects');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -46,39 +48,63 @@ export default function Dashboard() {
   const { data: pendingRequests } = useQuery({
     queryKey: ['access_requests_count'],
     queryFn: async () => {
-      const { count, error } = await supabase
-        .from('github_access_requests')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'pending');
-      if (error) throw error;
-      return count ?? 0;
+      try {
+        const { count, error } = await supabase
+          .from('github_access_requests')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'pending');
+        
+        if (error) {
+          console.warn('Silent fetch error for pending requests (likely RLS):', error.message);
+          return 0;
+        }
+        return count ?? 0;
+      } catch (err) {
+        console.warn('Silent catch for pending requests:', err);
+        return 0;
+      }
     },
+    retry: false,
   });
 
   const createMutation = useMutation({
     mutationFn: async (project: Omit<Project, 'id' | 'created_at'>) => {
+      if (!user) {
+        throw new Error('You must be logged in to add projects');
+      }
+      
       const { error } = await supabase
         .from('projects')
-        .insert(project);
-      if (error) throw error;
+        .insert([project]);
+      
+      if (error) {
+        throw new Error(error.message || 'Failed to create project');
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       toast.success('Project created successfully!');
       setIsFormOpen(false);
     },
-    onError: (error) => {
-      toast.error('Failed to create project: ' + error.message);
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to create project');
     },
   });
 
   const updateMutation = useMutation({
-    mutationFn: async ({ id, ...project }: Partial<Project> & { id: string }) => {
+    mutationFn: async ({ id, ...data }: Omit<Project, 'created_at'>) => {
+      if (!user) {
+        throw new Error('You must be logged in to update projects');
+      }
+      
       const { error } = await supabase
         .from('projects')
-        .update(project)
+        .update(data)
         .eq('id', id);
-      if (error) throw error;
+      
+      if (error) {
+        throw new Error(error.message || 'Failed to update project');
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
@@ -86,18 +112,25 @@ export default function Dashboard() {
       setIsFormOpen(false);
       setEditingProject(null);
     },
-    onError: (error) => {
-      toast.error('Failed to update project: ' + error.message);
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to update project');
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
+      if (!user) {
+        throw new Error('You must be logged in to delete projects');
+      }
+      
       const { error } = await supabase
         .from('projects')
         .delete()
         .eq('id', id);
-      if (error) throw error;
+      
+      if (error) {
+        throw new Error(error.message || 'Failed to delete project');
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
@@ -105,8 +138,8 @@ export default function Dashboard() {
       setIsDeleteOpen(false);
       setDeletingProject(null);
     },
-    onError: (error) => {
-      toast.error('Failed to delete project: ' + error.message);
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to delete project');
     },
   });
 
@@ -120,11 +153,15 @@ export default function Dashboard() {
     setIsDeleteOpen(true);
   };
 
-  const handleFormSubmit = (data: Omit<Project, 'id' | 'created_at'>) => {
-    if (editingProject) {
-      updateMutation.mutate({ id: editingProject.id, ...data });
-    } else {
-      createMutation.mutate(data);
+  const handleFormSubmit = async (data: Omit<Project, 'id' | 'created_at'>) => {
+    try {
+      if (editingProject) {
+        await updateMutation.mutateAsync({ id: editingProject.id, ...data });
+      } else {
+        await createMutation.mutateAsync(data);
+      }
+    } catch (error) {
+      console.error('Mutation error:', error);
     }
   };
 

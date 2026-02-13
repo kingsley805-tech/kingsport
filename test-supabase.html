@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supabase Connection Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Supabase Connection Test</h1>
+    <button onclick="testConnection()">Test Connection</button>
+    <button onclick="testInsert()">Test Insert</button>
+    <button onclick="testAuth()">Check Auth</button>
+    <pre id="output"></pre>
+
+    <script>
+        const SUPABASE_URL = 'https://gtwglsmurvozbqhtwvxp.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0d2dsc211cnZvemJxaHR3dnhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA0NTc2NTcsImV4cCI6MjA4NjAzMzY1N30.5ALe2ZHvjnEO09ECHU6-n3XfvQ9ONWbGwxbYznkiFmM';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const output = document.getElementById('output');
+
+        function log(message) {
+            output.textContent += JSON.stringify(message, null, 2) + '\n\n';
+            console.log(message);
+        }
+
+        async function testConnection() {
+            output.textContent = 'Testing connection...\n';
+            try {
+                const { data, error } = await supabase.from('projects').select('count', { count: 'exact', head: true });
+                log({ success: true, count: data, error });
+            } catch (err) {
+                log({ success: false, error: err.message });
+            }
+        }
+
+        async function testAuth() {
+            output.textContent = 'Checking auth...\n';
+            const { data: { session } } = await supabase.auth.getSession();
+            log({ session: session ? 'Logged in' : 'Not logged in', user: session?.user?.email });
+        }
+
+        async function testInsert() {
+            output.textContent = 'Testing insert...\n';
+            
+            const { data: { session } } = await supabase.auth.getSession();
+            log({ authStatus: session ? 'Logged in as ' + session.user.email : 'Not logged in' });
+
+            const testProject = {
+                title: 'Test Project ' + Date.now(),
+                description: 'Test description',
+                live_url: 'https://example.com',
+                github_url: 'https://github.com/test/repo',
+                tech_stack: ['React', 'TypeScript'],
+                thumbnail_url: null
+            };
+
+            log({ attemptingInsert: testProject });
+
+            try {
+                const { data, error } = await supabase
+                    .from('projects')
+                    .insert([testProject])
+                    .select();
+                
+                log({ 
+                    insertResult: { 
+                        data, 
+                        error: error ? {
+                            message: error.message,
+                            code: error.code,
+                            details: error.details,
+                            hint: error.hint
+                        } : null
+                    } 
+                });
+            } catch (err) {
+                log({ catchError: err.message, stack: err.stack });
+            }
+        }
+    </script>
+</body>
+</html>

@@ -117,7 +117,10 @@ export default function DashboardProjectTable({
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
-                      onClick={() => onEdit(project)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit(project);
+                      }}
                       className="p-2 hover:bg-muted rounded-lg transition-colors"
                     >
                       <Edit size={16} />
@@ -125,7 +128,10 @@ export default function DashboardProjectTable({
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
-                      onClick={() => onDelete(project)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(project);
+                      }}
                       className="p-2 hover:bg-destructive/10 rounded-lg transition-colors text-destructive"
                     >
                       <Trash2 size={16} />

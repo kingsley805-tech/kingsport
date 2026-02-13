@@ -32,14 +32,17 @@ export default function AboutEditor() {
         .from('about_content')
         .update({ content })
         .eq('section_key', section_key);
-      if (error) throw error;
+      
+      if (error) {
+        throw new Error(error.message || 'Failed to update about section');
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['about_content'] });
       toast.success('About section updated!');
     },
-    onError: (error) => {
-      toast.error('Failed to update: ' + error.message);
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to update');
     },
   });
 
@@ -129,8 +132,12 @@ function BioEditor({
           disabled={isSaving}
           className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
         >
-          <Save size={16} />
-          Save Bio
+          {isSaving ? (
+            <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <Save size={16} />
+          )}
+          {isSaving ? 'Saving...' : 'Save Bio'}
         </motion.button>
       </div>
     </div>
@@ -250,8 +257,12 @@ function SkillsEditor({
           disabled={isSaving}
           className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
         >
-          <Save size={16} />
-          Save Skills
+          {isSaving ? (
+            <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <Save size={16} />
+          )}
+          {isSaving ? 'Saving...' : 'Save Skills'}
         </motion.button>
       </div>
     </div>
@@ -334,8 +345,12 @@ function HobbiesEditor({
         disabled={isSaving}
         className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
       >
-        <Save size={16} />
-        Save Hobbies
+        {isSaving ? (
+          <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+        ) : (
+          <Save size={16} />
+        )}
+        {isSaving ? 'Saving...' : 'Save Hobbies'}
       </motion.button>
     </div>
   );

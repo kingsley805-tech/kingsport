@@ -34,7 +34,7 @@ const techColors: Record<string, string> = {
 };
 
 export default function TechBadge({ tech, index = 0 }: TechBadgeProps) {
-  const normalizedTech = tech.toLowerCase().replace(/\s+/g, '');
+  const normalizedTech = tech?.toLowerCase().replace(/\s+/g, '') || '';
   const colorClass = techColors[normalizedTech] || 'bg-primary/20 text-primary border-primary/30';
 
   return (

@@ -16,7 +16,7 @@ interface Project {
 
 interface ProjectFormModalProps {
   project: Project | null;
-  onSubmit: (data: Omit<Project, 'id' | 'created_at'>) => void;
+  onSubmit: (data: Omit<Project, 'id' | 'created_at'>) => void | Promise<void>;
   onClose: () => void;
   isSubmitting: boolean;
 }
@@ -103,7 +103,7 @@ export default function ProjectFormModal({
       return;
     }
 
-    onSubmit({
+    const result = onSubmit({
       title: title.trim(),
       description: description.trim() || null,
       live_url: liveUrl.trim(),
@@ -111,6 +111,12 @@ export default function ProjectFormModal({
       tech_stack: techStack,
       thumbnail_url: thumbnailUrl.trim() || null,
     });
+
+    if (result instanceof Promise) {
+      result.catch((error) => {
+        console.error('Submit promise error:', error);
+      });
+    }
   };
 
   return (
@@ -252,9 +258,12 @@ export default function ProjectFormModal({
               type="url"
               value={thumbnailUrl}
               onChange={(e) => setThumbnailUrl(e.target.value)}
-              placeholder="https://example.com/thumbnail.png"
+              placeholder="Any image URL (e.g., https://i.imgur.com/example.jpg)"
               className="w-full px-4 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
             />
+            <p className="text-xs text-muted-foreground mt-1">
+              Accepts any valid image URL from any source
+            </p>
           </div>
 
           {/* Submit */}
@@ -272,11 +281,14 @@ export default function ProjectFormModal({
               className="flex-1 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
-                <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                <>
+                  <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                  {project ? 'Updating...' : 'Creating...'}
+                </>
               ) : project ? (
                 'Update Project'
               ) : (
-                'Add Project'
+                'Create Project'
               )}
             </button>
           </div>
