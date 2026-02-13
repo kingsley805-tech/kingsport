@@ -223,7 +223,7 @@ export default function Dashboard() {
                 <div className="bg-card border border-border rounded-xl p-6">
                   <p className="text-muted-foreground text-sm">Technologies Used</p>
                   <p className="text-3xl font-bold mt-1">
-                    {new Set(projects?.flatMap(p => p.tech_stack) ?? []).size}
+                    {new Set(projects?.flatMap(p => p.tech_stack ?? []) ?? []).size}
                   </p>
                 </div>
                 <div className="bg-card border border-border rounded-xl p-6">
