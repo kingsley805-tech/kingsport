@@ -57,12 +57,10 @@ export default function Dashboard() {
 
   const createMutation = useMutation({
     mutationFn: async (project: Omit<Project, 'id' | 'created_at'>) => {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('projects')
-        .insert(project)
-        .select();
+        .insert(project);
       if (error) throw error;
-      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
@@ -76,13 +74,11 @@ export default function Dashboard() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, ...project }: Partial<Project> & { id: string }) => {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('projects')
         .update(project)
-        .eq('id', id)
-        .select();
+        .eq('id', id);
       if (error) throw error;
-      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
