@@ -39,7 +39,7 @@ export default function Portfolio() {
   const availableTechs = useMemo(() => {
     if (!projects) return [];
     const techs = new Set<string>();
-    projects.forEach(p => p.tech_stack.forEach(t => techs.add(t)));
+    projects.forEach(p => (p.tech_stack ?? []).forEach(t => techs.add(t)));
     return Array.from(techs).sort();
   }, [projects]);
 
@@ -53,7 +53,7 @@ export default function Portfolio() {
         project.description?.toLowerCase().includes(searchQuery.toLowerCase());
       
       const matchesTech = selectedTechs.length === 0 ||
-        selectedTechs.some(tech => project.tech_stack.includes(tech));
+        selectedTechs.some(tech => (project.tech_stack ?? []).includes(tech));
       
       return matchesSearch && matchesTech;
     });
