@@ -1,10 +1,24 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { ExternalLink, Github, Globe } from 'lucide-react';
+import { ExternalLink, Github, Globe, Lock } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 const ProjectsSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const [isUnlockOpen, setIsUnlockOpen] = useState(false);
+  const [unlockCode, setUnlockCode] = useState('');
+  const [targetUrl, setTargetUrl] = useState('');
 
   const { data: projects = [] } = useQuery({
     queryKey: ['public-projects'],
@@ -30,6 +44,24 @@ const ProjectsSection = () => {
     cards?.forEach((c) => observer.observe(c));
     return () => observer.disconnect();
   }, [projects]);
+
+  const handleGithubClick = (e: React.MouseEvent, url: string) => {
+    e.preventDefault();
+    setTargetUrl(url);
+    setIsUnlockOpen(true);
+    setUnlockCode('');
+  };
+
+  const handleUnlock = () => {
+    if (unlockCode.toLowerCase() === 'kingsberg') {
+      window.open(targetUrl, '_blank', 'noopener,noreferrer');
+      setIsUnlockOpen(false);
+      setUnlockCode('');
+      toast.success('Code unlocked successfully!');
+    } else {
+      toast.error('Invalid unlock code');
+    }
+  };
 
   if (projects.length === 0) return null;
 
@@ -103,19 +135,51 @@ const ProjectsSection = () => {
                 >
                   <ExternalLink size={14} /> Live Demo
                 </a>
-                <a
-                  href={project.github_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <Github size={14} /> GitHub
-                </a>
+                {project.github_url && (
+                  <a
+                    href={project.github_url}
+                    onClick={(e) => handleGithubClick(e, project.github_url)}
+                    className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                  >
+                    <Github size={14} /> GitHub
+                  </a>
+                )}
               </div>
             </div>
           </div>
         ))}
       </div>
+
+      <Dialog open={isUnlockOpen} onOpenChange={setIsUnlockOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Lock className="w-5 h-5 text-primary" />
+              Unlock Source Code
+            </DialogTitle>
+            <DialogDescription>
+              This project's source code is protected. Please enter the unlock code to view the GitHub repository.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center space-x-2 py-4">
+            <Input
+              type="password"
+              placeholder="Enter unlock code..."
+              value={unlockCode}
+              onChange={(e) => setUnlockCode(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleUnlock();
+              }}
+              autoFocus
+            />
+          </div>
+          <DialogFooter className="sm:justify-start">
+            <Button type="button" onClick={handleUnlock} className="w-full sm:w-auto">
+              Unlock
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };

@@ -46,7 +46,7 @@ const AboutSection = () => {
         <div className="reveal opacity-0 flex-shrink-0">
           <div className="relative w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-2 border-primary/30 amber-glow">
             <img
-              src="https://id-preview--29191645-cda0-4414-939b-be759274802c.lovable.app/assets/me-DmBfHhXt.png"
+              src="/IMG_20260108_145926_631~2.jpg"
               alt="Kingsley Atta Yeboah"
               className="w-full h-full object-cover"
             />
