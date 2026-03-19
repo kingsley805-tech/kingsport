@@ -71,6 +71,18 @@ const ProjectsSection = () => {
               </div>
             </div>
 
+            {/* Live iframe preview */}
+            <div className="relative w-full h-48 bg-secondary/30 overflow-hidden border-b border-border">
+              <iframe
+                src={project.url}
+                title={project.title}
+                className="w-[200%] h-[200%] origin-top-left scale-50 pointer-events-none"
+                sandbox="allow-scripts allow-same-origin"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/20" />
+            </div>
+
             {/* Content */}
             <div className="p-6">
               <h3 className="font-display text-xl font-semibold mb-3 group-hover:text-primary transition-colors">
