@@ -41,13 +41,28 @@ const AboutSection = () => {
 
   return (
     <section id="about" ref={sectionRef} className="section-padding max-w-7xl mx-auto">
-      <p className="text-primary font-display text-sm tracking-[0.2em] uppercase mb-2">About Me</p>
-      <h2 className="text-3xl md:text-5xl font-display font-bold mb-6">
-        Crafting Digital <span className="gradient-text-amber">Excellence</span>
-      </h2>
-      <p className="text-muted-foreground max-w-2xl text-lg mb-16">
-        Based in Accra, Ghana, I bring a multidisciplinary approach to technology — combining software engineering, networking infrastructure, and hands-on IT expertise to deliver end-to-end solutions.
-      </p>
+      <div className="flex flex-col md:flex-row items-center gap-12 mb-16">
+        {/* Profile image */}
+        <div className="reveal opacity-0 flex-shrink-0">
+          <div className="relative w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-2 border-primary/30 amber-glow">
+            <img
+              src="https://id-preview--29191645-cda0-4414-939b-be759274802c.lovable.app/assets/me-DmBfHhXt.png"
+              alt="Kingsley Atta Yeboah"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+
+        <div>
+          <p className="text-primary font-display text-sm tracking-[0.2em] uppercase mb-2">About Me</p>
+          <h2 className="text-3xl md:text-5xl font-display font-bold mb-6">
+            Crafting Digital <span className="gradient-text-amber">Excellence</span>
+          </h2>
+          <p className="text-muted-foreground max-w-2xl text-lg">
+            Based in Accra, Ghana, I bring a multidisciplinary approach to technology — combining software engineering, networking infrastructure, and hands-on IT expertise to deliver end-to-end solutions.
+          </p>
+        </div>
+      </div>
 
       <div className="grid md:grid-cols-3 gap-6">
         {roles.map((role, i) => (
