@@ -1,32 +1,19 @@
 import { useEffect, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { ExternalLink, Github, Globe } from 'lucide-react';
-
-const projects = [
-  {
-    title: 'CloudSync Dashboard',
-    description: 'Real-time cloud monitoring platform with live metrics, alerts, and team collaboration features.',
-    url: 'https://example.com',
-    github: '#',
-    tools: ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'WebSocket'],
-  },
-  {
-    title: 'NetGuard Analytics',
-    description: 'Network security monitoring tool with traffic analysis, threat detection, and reporting.',
-    url: 'https://example.com',
-    github: '#',
-    tools: ['Python', 'Django', 'D3.js', 'Redis', 'Docker'],
-  },
-  {
-    title: 'DevFlow CI/CD',
-    description: 'Automated deployment pipeline with GitHub integration, build monitoring, and rollback support.',
-    url: 'https://example.com',
-    github: '#',
-    tools: ['Go', 'React', 'Docker', 'Kubernetes', 'gRPC'],
-  },
-];
 
 const ProjectsSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
+
+  const { data: projects = [] } = useQuery({
+    queryKey: ['public-projects'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('projects').select('*').eq('visible', true).order('display_order');
+      if (error) throw error;
+      return data;
+    },
+  });
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -42,7 +29,9 @@ const ProjectsSection = () => {
     const cards = sectionRef.current?.querySelectorAll('.reveal');
     cards?.forEach((c) => observer.observe(c));
     return () => observer.disconnect();
-  }, []);
+  }, [projects]);
+
+  if (projects.length === 0) return null;
 
   return (
     <section id="projects" ref={sectionRef} className="section-padding max-w-7xl mx-auto">
@@ -54,7 +43,7 @@ const ProjectsSection = () => {
       <div className="grid lg:grid-cols-3 gap-8">
         {projects.map((project, i) => (
           <div
-            key={project.title}
+            key={project.id}
             className="reveal opacity-0 browser-card group hover:border-primary/30 transition-all duration-500"
             style={{ animationDelay: `${i * 0.15}s` }}
           >
@@ -115,7 +104,7 @@ const ProjectsSection = () => {
                   <ExternalLink size={14} /> Live Demo
                 </a>
                 <a
-                  href={project.github}
+                  href={project.github_url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
