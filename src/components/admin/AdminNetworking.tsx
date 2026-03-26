@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
 import type { Tables, TablesInsert } from '@/integrations/supabase/types';
 
 type Tool = Tables<'networking_tools'>;
@@ -63,6 +63,53 @@ const AdminNetworking = () => {
     onError: (e) => toast.error(e.message),
   });
 
+  const moveMutation = useMutation({
+    mutationFn: async ({ id, newOrder, otherId, otherNewOrder }: { id: string, newOrder: number, otherId: string, otherNewOrder: number }) => {
+      const { error: error1 } = await supabase.from('networking_tools').update({ display_order: newOrder }).eq('id', id);
+      if (error1) throw error1;
+
+      const { error: error2 } = await supabase.from('networking_tools').update({ display_order: otherNewOrder }).eq('id', otherId);
+      if (error2) throw error2;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-networking-tools'] });
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const handleMove = (index: number, direction: 'up' | 'down') => {
+    const tool = tools[index];
+    const neighborIndex = direction === 'up' ? index - 1 : index + 1;
+    const neighbor = tools[neighborIndex];
+
+    if (!neighbor) return;
+
+    let newOrder = neighbor.display_order;
+    let otherNewOrder = tool.display_order;
+
+    // If orders are the same, use indices to force a swap
+    if (newOrder === otherNewOrder) {
+      newOrder = neighborIndex;
+      otherNewOrder = index;
+    }
+
+    moveMutation.mutate({
+      id: tool.id,
+      newOrder,
+      otherId: neighbor.id,
+      otherNewOrder
+    });
+  };
+
+  const openAdd = () => {
+    const maxOrder = tools.length > 0 
+      ? Math.max(...tools.map(t => t.display_order)) 
+      : -1;
+    setEditing(null);
+    setForm({ ...emptyTool, display_order: maxOrder + 1 });
+    setOpen(true);
+  };
+
   const openEdit = (t: Tool) => {
     setEditing(t);
     setForm({ name: t.name, description: t.description, image_url: t.image_url ?? '', external_url: t.external_url ?? '', visible: t.visible, display_order: t.display_order });
@@ -84,7 +131,7 @@ const AdminNetworking = () => {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="font-display text-lg font-semibold">Manage Networking Tools</h2>
-        <Dialog open={open} onOpenChange={(v) => { if (!v) closeDialog(); else setOpen(true); }}>
+        <Dialog open={open} onOpenChange={(v) => { if (!v) closeDialog(); else openAdd(); }}>
           <DialogTrigger asChild>
             <Button size="sm" className="gradient-amber text-primary-foreground">
               <Plus size={16} /> Add Tool
@@ -120,8 +167,30 @@ const AdminNetworking = () => {
         <p className="text-muted-foreground">No tools yet. Add your first one!</p>
       ) : (
         <div className="space-y-3">
-          {tools.map((t) => (
+          {tools.map((t, index) => (
             <div key={t.id} className="glass-card rounded-lg p-4 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <div className="flex flex-col gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    disabled={index === 0 || moveMutation.isPending}
+                    onClick={() => handleMove(index, 'up')}
+                  >
+                    <ArrowUp size={14} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    disabled={index === tools.length - 1 || moveMutation.isPending}
+                    onClick={() => handleMove(index, 'down')}
+                  >
+                    <ArrowDown size={14} />
+                  </Button>
+                </div>
+              </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <h3 className="font-semibold truncate">{t.name}</h3>
