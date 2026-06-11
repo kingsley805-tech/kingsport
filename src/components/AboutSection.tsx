@@ -10,7 +10,7 @@ const roles = [
   {
     icon: Network,
     title: 'Network Engineer',
-    desc: 'Enterprise network design, configuration, and troubleshooting. Cisco, MikroTik, and beyond.',
+    desc: 'Enterprise network design, configurations, and troubleshooting. Cisco, MikroTik, and beyond.',
   },
   {
     icon: Monitor,
