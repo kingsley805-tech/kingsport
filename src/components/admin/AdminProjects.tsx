@@ -10,11 +10,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, ArrowUp, ArrowDown, GripVertical } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import type { Tables, TablesInsert } from '@/integrations/supabase/types';
 
-type Project = Tables<'projects'>;
 
-const emptyProject: Partial<TablesInsert<'projects'>> = {
+type Project = any;
+
+const emptyProject: Partial<any> = {
   title: '', description: '', url: '', github_url: '', tools: [], visible: true, display_order: 0,
 };
 
@@ -35,7 +35,7 @@ const AdminProjects = () => {
   });
 
   const saveMutation = useMutation({
-    mutationFn: async (p: TablesInsert<'projects'>) => {
+    mutationFn: async (p: any) => {
       if (editing) {
         const { error } = await supabase.from('projects').update(p).eq('id', editing.id);
         if (error) throw error;
@@ -164,7 +164,7 @@ const AdminProjects = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const tools = toolsInput.split(',').map(t => t.trim()).filter(Boolean);
-    saveMutation.mutate({ ...form, tools, title: form.title! } as TablesInsert<'projects'>);
+    saveMutation.mutate({ ...form, tools, title: form.title! } as any);
   };
 
   return (
