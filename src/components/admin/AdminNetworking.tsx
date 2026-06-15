@@ -9,11 +9,11 @@ import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
-import type { Tables, TablesInsert } from '@/integrations/supabase/types';
 
-type Tool = Tables<'networking_tools'>;
 
-const emptyTool: Partial<TablesInsert<'networking_tools'>> = {
+type Tool = any;
+
+const emptyTool: Partial<any> = {
   name: '', description: '', image_url: '', external_url: '', visible: true, display_order: 0,
 };
 
@@ -33,7 +33,7 @@ const AdminNetworking = () => {
   });
 
   const saveMutation = useMutation({
-    mutationFn: async (t: TablesInsert<'networking_tools'>) => {
+    mutationFn: async (t: any) => {
       if (editing) {
         const { error } = await supabase.from('networking_tools').update(t).eq('id', editing.id);
         if (error) throw error;
@@ -125,7 +125,7 @@ const AdminNetworking = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    saveMutation.mutate({ ...form, name: form.name! } as TablesInsert<'networking_tools'>);
+    saveMutation.mutate({ ...form, name: form.name! } as any);
   };
 
   return (

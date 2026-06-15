@@ -7,9 +7,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
-import type { Tables } from '@/integrations/supabase/types';
 
-type Section = Tables<'section_content'>;
+
+type Section = any;
 
 const AdminSections = () => {
   const qc = useQueryClient();
