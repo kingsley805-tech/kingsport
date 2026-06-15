@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -77,6 +77,12 @@ const AdminLogin = () => {
           >
             {resetting ? 'Sending reset link...' : 'Forgot password?'}
           </Button>
+          <p className="text-center text-sm text-muted-foreground">
+            Don't have an account?{' '}
+            <Link to="/admin/signup" className="text-primary hover:underline">
+              Sign up
+            </Link>
+          </p>
         </form>
       </div>
     </div>
