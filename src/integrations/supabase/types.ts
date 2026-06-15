@@ -168,6 +168,42 @@ export type Database = {
           },
         ]
       }
+      networking_tools: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number
+          external_url: string | null
+          id: string
+          image_url: string | null
+          name: string
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          external_url?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          external_url?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -207,6 +243,45 @@ export type Database = {
         }
         Relationships: []
       }
+      projects: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number
+          github_url: string | null
+          id: string
+          title: string
+          tools: string[]
+          updated_at: string
+          url: string | null
+          visible: boolean
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          github_url?: string | null
+          id?: string
+          title: string
+          tools?: string[]
+          updated_at?: string
+          url?: string | null
+          visible?: boolean
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          github_url?: string | null
+          id?: string
+          title?: string
+          tools?: string[]
+          updated_at?: string
+          url?: string | null
+          visible?: boolean
+        }
+        Relationships: []
+      }
       registrations: {
         Row: {
           created_at: string
@@ -238,6 +313,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      section_content: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          section_key: string
+          subtitle: string | null
+          title: string | null
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          section_key: string
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          section_key?: string
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
