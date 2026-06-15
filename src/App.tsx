@@ -8,6 +8,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index.tsx";
 import Admin from "./pages/Admin.tsx";
 import AdminLogin from "./pages/AdminLogin.tsx";
+import AdminSignup from "./pages/AdminSignup.tsx";
 import AdminResetPassword from "./pages/AdminResetPassword.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
