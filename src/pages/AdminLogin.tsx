@@ -9,7 +9,8 @@ const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
+  const [resetting, setResetting] = useState(false);
+  const { signIn, resetPassword } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,6 +23,24 @@ const AdminLogin = () => {
     } else {
       navigate('/admin');
     }
+  };
+
+  const handleResetPassword = async () => {
+    if (!email) {
+      toast.error('Enter your email first.');
+      return;
+    }
+
+    setResetting(true);
+    const { error } = await resetPassword(email);
+    setResetting(false);
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    toast.success('Password reset email sent. Check your inbox.');
   };
 
   return (
@@ -48,6 +67,15 @@ const AdminLogin = () => {
           />
           <Button type="submit" disabled={loading} className="w-full gradient-amber text-primary-foreground font-semibold">
             {loading ? 'Signing in...' : 'Sign In'}
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            disabled={resetting}
+            onClick={handleResetPassword}
+            className="w-full text-muted-foreground"
+          >
+            {resetting ? 'Sending reset link...' : 'Forgot password?'}
           </Button>
         </form>
       </div>
