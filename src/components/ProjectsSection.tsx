@@ -61,7 +61,7 @@ const ProjectsSection = () => {
     .map((p) => ({
       id: p.id,
       title: p.name,
-      description: p.description ?? (p.repoName ?? 'Live deployment on Vercel'),
+      description: p.description ?? 'Live deployment on Vercel',
       url: p.productionUrl!,
       github_url: p.repoUrl,
       tools: p.framework ? (STACK_MAP[p.framework] ?? [p.framework]) : ['Web App'],
