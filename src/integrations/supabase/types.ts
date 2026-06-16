@@ -243,6 +243,36 @@ export type Database = {
         }
         Relationships: []
       }
+      project_access_codes: {
+        Row: {
+          code: string
+          created_at: string
+          github_url: string | null
+          id: string
+          project_id: string
+          project_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          github_url?: string | null
+          id?: string
+          project_id: string
+          project_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          github_url?: string | null
+          id?: string
+          project_id?: string
+          project_name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           created_at: string

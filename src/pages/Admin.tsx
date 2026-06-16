@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { LogOut, LayoutDashboard } from 'lucide-react';
 import AdminProjects from '@/components/admin/AdminProjects';
+import AdminProjectCodes from '@/components/admin/AdminProjectCodes';
 import AdminNetworking from '@/components/admin/AdminNetworking';
 import AdminSections from '@/components/admin/AdminSections';
 import AdminStats from '@/components/admin/AdminStats';
@@ -52,12 +53,16 @@ const Admin = () => {
         <Tabs defaultValue="projects" className="mt-8">
           <TabsList className="bg-secondary/50 border border-border">
             <TabsTrigger value="projects">Projects</TabsTrigger>
+            <TabsTrigger value="codes">GitHub Codes</TabsTrigger>
             <TabsTrigger value="networking">Networking Tools</TabsTrigger>
             <TabsTrigger value="sections">Section Content</TabsTrigger>
           </TabsList>
 
           <TabsContent value="projects" className="mt-6">
             <AdminProjects />
+          </TabsContent>
+          <TabsContent value="codes" className="mt-6">
+            <AdminProjectCodes />
           </TabsContent>
           <TabsContent value="networking" className="mt-6">
             <AdminNetworking />

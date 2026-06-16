@@ -12,6 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import { fetchVercelProjects } from '@/services/vercel';
 import type { VercelProjectDTO } from '@/types/vercel';
 
@@ -28,7 +29,9 @@ const ProjectsSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const [isUnlockOpen, setIsUnlockOpen] = useState(false);
   const [unlockCode, setUnlockCode] = useState('');
-  const [targetUrl, setTargetUrl] = useState('');
+  const [targetProjectId, setTargetProjectId] = useState<string>('');
+  const [fallbackUrl, setFallbackUrl] = useState<string>('');
+  const [verifying, setVerifying] = useState(false);
 
   const { data: rawProjects = [] } = useQuery<VercelProjectDTO[]>({
     queryKey: ['vercel-projects'],
@@ -68,21 +71,32 @@ const ProjectsSection = () => {
     return () => observer.disconnect();
   }, [projects]);
 
-  const handleGithubClick = (e: React.MouseEvent, url: string) => {
+  const handleGithubClick = (e: React.MouseEvent, projectId: string, url: string) => {
     e.preventDefault();
-    setTargetUrl(url);
+    setTargetProjectId(projectId);
+    setFallbackUrl(url);
     setIsUnlockOpen(true);
     setUnlockCode('');
   };
 
-  const handleUnlock = () => {
-    if (unlockCode.toLowerCase() === 'kingsberg') {
-      window.open(targetUrl, '_blank', 'noopener,noreferrer');
+  const handleUnlock = async () => {
+    if (!unlockCode.trim()) return;
+    setVerifying(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('verify-project-access', {
+        body: { project_id: targetProjectId, code: unlockCode },
+      });
+      if (error || !data?.ok) {
+        toast.error('Invalid unlock code');
+        return;
+      }
+      const url = data.github_url || fallbackUrl;
+      window.open(url, '_blank', 'noopener,noreferrer');
       setIsUnlockOpen(false);
       setUnlockCode('');
-      toast.success('Code unlocked successfully!');
-    } else {
-      toast.error('Invalid unlock code');
+      toast.success('Unlocked');
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -161,10 +175,10 @@ const ProjectsSection = () => {
                 {project.github_url && (
                   <a
                     href={project.github_url}
-                    onClick={(e) => handleGithubClick(e, project.github_url)}
+                    onClick={(e) => handleGithubClick(e, project.id, project.github_url!)}
                     className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                   >
-                    <Github size={14} /> GitHub
+                    <Lock size={12} /> GitHub
                   </a>
                 )}
               </div>
@@ -197,8 +211,8 @@ const ProjectsSection = () => {
             />
           </div>
           <DialogFooter className="sm:justify-start">
-            <Button type="button" onClick={handleUnlock} className="w-full sm:w-auto">
-              Unlock
+            <Button type="button" onClick={handleUnlock} disabled={verifying} className="w-full sm:w-auto">
+              {verifying ? 'Verifying…' : 'Unlock'}
             </Button>
           </DialogFooter>
         </DialogContent>
