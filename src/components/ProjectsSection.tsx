@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { supabase as supabaseTyped } from '@/integrations/supabase/client';
-const supabase = supabaseTyped as any;
 import { ExternalLink, Github, Globe, Lock } from 'lucide-react';
 import {
   Dialog,
@@ -14,6 +12,17 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { fetchVercelProjects } from '@/services/vercel';
+import type { VercelProjectDTO } from '@/types/vercel';
+
+type CardProject = {
+  id: string;
+  title: string;
+  description: string;
+  url: string;
+  github_url: string | null;
+  tools: string[];
+};
 
 const ProjectsSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -21,14 +30,27 @@ const ProjectsSection = () => {
   const [unlockCode, setUnlockCode] = useState('');
   const [targetUrl, setTargetUrl] = useState('');
 
-  const { data: projects = [] } = useQuery({
-    queryKey: ['public-projects'],
-    queryFn: async () => {
-      const { data, error } = await supabase.from('projects').select('*').eq('visible', true).order('display_order');
-      if (error) throw error;
-      return data;
-    },
+  const { data: rawProjects = [] } = useQuery<VercelProjectDTO[]>({
+    queryKey: ['vercel-projects'],
+    queryFn: fetchVercelProjects,
+    refetchInterval: 1000 * 60 * 30,
+    staleTime: 1000 * 60 * 30,
   });
+
+  const projects: CardProject[] = rawProjects
+    .filter((p) => !!p.productionUrl)
+    .sort((a, b) => b.updatedAt - a.updatedAt)
+    .map((p) => ({
+      id: p.id,
+      title: p.name,
+      description:
+        p.description ??
+        `${p.framework ? `${p.framework} project` : 'Deployed project'}${p.repoName ? ` — ${p.repoName}` : ''}`,
+      url: p.productionUrl!,
+      github_url: p.repoUrl,
+      tools: [p.framework, p.deploymentStatus].filter(Boolean) as string[],
+    }));
+
 
   useEffect(() => {
     const observer = new IntersectionObserver(
