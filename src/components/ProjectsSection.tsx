@@ -40,18 +40,31 @@ const ProjectsSection = () => {
     staleTime: 1000 * 60 * 30,
   });
 
+  const STACK_MAP: Record<string, string[]> = {
+    vite: ['Vite', 'React', 'TypeScript', 'Tailwind'],
+    'create-react-app': ['React', 'TypeScript'],
+    nextjs: ['Next.js', 'React', 'TypeScript', 'Tailwind'],
+    'tanstack-start': ['TanStack Start', 'React', 'TypeScript'],
+    remix: ['Remix', 'React', 'TypeScript'],
+    astro: ['Astro', 'TypeScript', 'Tailwind'],
+    svelte: ['SvelteKit', 'TypeScript'],
+    nuxtjs: ['Nuxt', 'Vue', 'TypeScript'],
+    vue: ['Vue', 'TypeScript'],
+    gatsby: ['Gatsby', 'React'],
+  };
+
   const projects: CardProject[] = rawProjects
     .filter((p) => !!p.productionUrl)
+    .filter((p) => p.productionUrl!.includes('.vercel.app'))
+    .filter((p) => p.repoName !== 'kingsley805-tech/edumanageschools')
     .sort((a, b) => b.updatedAt - a.updatedAt)
     .map((p) => ({
       id: p.id,
       title: p.name,
-      description:
-        p.description ??
-        `${p.framework ? `${p.framework} project` : 'Deployed project'}${p.repoName ? ` — ${p.repoName}` : ''}`,
+      description: p.description ?? (p.repoName ? `Source: ${p.repoName}` : 'Live deployment on Vercel'),
       url: p.productionUrl!,
       github_url: p.repoUrl,
-      tools: [p.framework, p.deploymentStatus].filter(Boolean) as string[],
+      tools: p.framework ? (STACK_MAP[p.framework] ?? [p.framework]) : ['Web App'],
     }));
 
 
