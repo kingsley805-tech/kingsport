@@ -49,8 +49,11 @@ interface NormalizedProject {
 
 function pickProductionUrl(p: VercelProject): string | null {
   const prod = p.targets?.production;
-  if (prod?.alias && prod.alias.length > 0) return `https://${prod.alias[0]}`;
+  // Prefer a .vercel.app alias, then the raw vercel-hosted URL, then any alias.
+  const vercelAlias = prod?.alias?.find((a) => a.endsWith(".vercel.app"));
+  if (vercelAlias) return `https://${vercelAlias}`;
   if (prod?.url) return `https://${prod.url}`;
+  if (prod?.alias && prod.alias.length > 0) return `https://${prod.alias[0]}`;
   return null;
 }
 
