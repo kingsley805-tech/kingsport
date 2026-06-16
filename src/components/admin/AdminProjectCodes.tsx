@@ -24,15 +24,15 @@ const AdminProjectCodes = () => {
 
   useEffect(() => {
     (async () => {
-      const { data, error } = await supabase
-        .from('project_access_codes' as any)
+      const { data, error } = await (supabase as any)
+        .from('project_access_codes')
         .select('project_id, code, github_url');
       if (error) {
         toast.error('Failed to load saved codes');
         return;
       }
       const map: Record<string, CodeRow> = {};
-      (data as CodeRow[] | null)?.forEach((row) => {
+      ((data as CodeRow[] | null) ?? []).forEach((row) => {
         map[row.project_id] = row;
       });
       setCodes(map);
@@ -63,7 +63,7 @@ const AdminProjectCodes = () => {
       return;
     }
     setSavingId(projectId);
-    const { error } = await supabase.from('project_access_codes' as any).upsert(
+    const { error } = await (supabase as any).from('project_access_codes').upsert(
       {
         project_id: projectId,
         project_name: projectName,
@@ -78,8 +78,8 @@ const AdminProjectCodes = () => {
   };
 
   const remove = async (projectId: string) => {
-    const { error } = await supabase
-      .from('project_access_codes' as any)
+    const { error } = await (supabase as any)
+      .from('project_access_codes')
       .delete()
       .eq('project_id', projectId);
     if (error) return toast.error(error.message);
