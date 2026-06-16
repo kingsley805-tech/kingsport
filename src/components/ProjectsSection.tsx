@@ -58,6 +58,7 @@ const ProjectsSection = () => {
     .filter((p) => p.productionUrl!.includes('.vercel.app'))
     .filter((p) => p.repoName !== 'kingsley805-tech/edumanageschools')
     .sort((a, b) => b.updatedAt - a.updatedAt)
+    .slice(0, 6)
     .map((p) => ({
       id: p.id,
       title: p.name,
