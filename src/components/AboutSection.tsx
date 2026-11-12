@@ -22,8 +22,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenCVPreview }) =
   const softwareCapabilities = [
     'Software architecture & full-stack development',
     'Frontend engineering (React.js, TypeScript, Tailwind CSS)',
-    'Backend & RESTful API development (Node.js, Express, PHP)',
-    'Database design & performance tuning (PostgreSQL, MongoDB, SQL)',
+    'Backend & RESTful API development (Laravel, PHP, Node.js, Express)',
+    'Database design & performance tuning (SQL, PostgreSQL, MySQL, MongoDB)',
     'Cross-platform desktop (Electron) & mobile (React Native) apps',
     'Business management, POS & multi-tenant ERP solutions'
   ];

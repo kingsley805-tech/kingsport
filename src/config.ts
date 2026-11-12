@@ -147,9 +147,10 @@ export const PORTFOLIO_CONFIG = {
       subtitle: 'Server-side logic, business workflows, and RESTful integrations',
       track: 'engineering',
       skills: [
+        { name: 'Laravel', context: 'Full-Stack MVC Framework' },
+        { name: 'PHP', context: 'Backend Engineering' },
         { name: 'Node.js', context: 'Runtime & Services' },
         { name: 'Express.js', context: 'REST API Servers' },
-        { name: 'PHP Frameworks', context: 'Web Applications' },
         { name: 'RESTful APIs', context: 'Design & Integration' },
         { name: 'Payment Gateways', context: 'SaaS & ERP Billing' }
       ]
@@ -160,9 +161,10 @@ export const PORTFOLIO_CONFIG = {
       subtitle: 'Schema modeling, querying, optimization, and troubleshooting',
       track: 'engineering',
       skills: [
+        { name: 'SQL', context: 'Relational Queries & Schema Design' },
         { name: 'PostgreSQL', context: 'Multi-Tenant Relational' },
+        { name: 'MySQL', context: 'Relational Database Management' },
         { name: 'MongoDB', context: 'NoSQL Document Store' },
-        { name: 'Framework SQL', context: 'Structured Data Access' },
         { name: 'Performance Tuning', context: 'Query & System Speed' }
       ]
     },
@@ -582,7 +584,7 @@ export const PORTFOLIO_CONFIG = {
   // Hero Terminal Status lines (authentic software & IT support context)
   bootSequence: [
     'ROLE: Software Engineer • Full-Stack Developer • Technical Support Specialist',
-    'STACK: React.js • TypeScript • Node.js • Express • PostgreSQL • MongoDB',
+    'STACK: Laravel • PHP • SQL • React.js • TypeScript • Node.js • PostgreSQL',
     'APPS: Electron.js Desktop • React Native Mobile • Multi-Tenant SaaS & POS',
     'IT OPS: Systems Admin • Network Security • Starlink & ISP Infrastructure',
     'EDU: B.Sc. Computer Science (UoPeople) • Google IT Support Certified',

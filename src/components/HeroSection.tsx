@@ -331,7 +331,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   Full-Stack &amp; ERP/POS
                 </span>
                 <span className="text-[11px] text-muted-foreground mt-0.5 block">
-                  React, Node.js, PostgreSQL
+                  Laravel, PHP, SQL, React
                 </span>
               </div>
               <div className="p-3 rounded-xl bg-secondary/50 border border-border/60">
