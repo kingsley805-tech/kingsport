@@ -4,90 +4,97 @@
 
 @layer base {
   :root {
-    /* Claude-style warm, editorial cream palette */
-    --background: 40 20% 97%;       /* #FAF8F5 */
-    --foreground: 220 15% 12%;      /* #191C21 */
+    /* Crisp Modern Light Mode */
+    --background: 210 40% 98%;       /* #F8FAFC */
+    --foreground: 222 47% 11%;       /* #0F172A */
 
-    --card: 0 0% 100%;              /* #FFFFFF */
-    --card-foreground: 220 15% 12%;
+    --card: 0 0% 100%;               /* #FFFFFF */
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 15% 12%;
+    --popover-foreground: 222 47% 11%;
 
-    --primary: 14 68% 55%;          /* #E07A5F terracotta */
+    --primary: 221 83% 53%;          /* #2563EB Electric Blue */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 35 15% 93%;        /* #ECE8E1 */
-    --secondary-foreground: 220 15% 18%;
+    --secondary: 214 32% 93%;        /* #E8EEF5 */
+    --secondary-foreground: 222 47% 15%;
 
-    --muted: 35 15% 93%;
-    --muted-foreground: 220 10% 46%;
+    --muted: 214 32% 93%;
+    --muted-foreground: 215 16% 42%; /* #5A6B82 */
 
-    --accent: 14 68% 55%;
+    --accent: 189 94% 43%;           /* #06B6D4 Cyan */
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 35 15% 87%;           /* #DFDAD2 */
-    --input: 35 15% 87%;
-    --ring: 14 68% 55%;
+    --border: 214 25% 88%;           /* #DCE3EC */
+    --input: 214 25% 88%;
+    --ring: 221 83% 53%;
 
     --radius: 0.85rem;
 
-    /* Technical / Hardware Glows */
-    --copper: 14 68% 55%;
-    --copper-rgb: 224, 122, 95;
-    --copper-glow: 0 0 25px rgba(224, 122, 95, 0.25);
-    --circuit-trace: rgba(224, 122, 95, 0.35);
+    /* Technical Glows & Accents */
+    --copper: 189 94% 43%;
+    --accent-rgb: 37, 99, 235;
+    --cyan-rgb: 6, 182, 212;
+    --copper-glow: 0 0 25px rgba(37, 99, 235, 0.2);
+    --circuit-trace: rgba(37, 99, 235, 0.3);
 
-    --glass-bg: rgba(255, 255, 255, 0.75);
-    --glass-border: rgba(224, 122, 95, 0.15);
+    --glass-bg: rgba(255, 255, 255, 0.78);
+    --glass-border: rgba(37, 99, 235, 0.14);
   }
 
   .dark {
-    /* Deep charcoal, warm obsidian with copper traces */
-    --background: 225 15% 7%;       /* #0F1115 */
-    --foreground: 40 20% 95%;       /* #F6F4F0 */
+    /* Primary Deep Navy / Near-Black & Dark Charcoal */
+    --background: 222 47% 5%;        /* #070B14 */
+    --foreground: 210 40% 98%;       /* #F8FAFC */
 
-    --card: 225 14% 10%;            /* #15181F */
-    --card-foreground: 40 20% 95%;
+    --card: 222 39% 9%;              /* #0E1525 */
+    --card-foreground: 210 40% 98%;
 
-    --popover: 225 14% 10%;
-    --popover-foreground: 40 20% 95%;
+    --popover: 222 39% 9%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 14 74% 63%;          /* #E7856B */
-    --primary-foreground: 225 15% 7%;
+    --primary: 217 91% 60%;          /* #3B82F6 Electric Blue */
+    --primary-foreground: 222 47% 7%;
 
-    --secondary: 225 12% 14%;       /* #1E2129 */
-    --secondary-foreground: 40 20% 95%;
+    --secondary: 220 30% 14%;        /* #192231 Dark Charcoal */
+    --secondary-foreground: 210 40% 96%;
 
-    --muted: 225 12% 14%;
-    --muted-foreground: 220 10% 62%;
+    --muted: 220 30% 14%;
+    --muted-foreground: 215 20% 65%; /* #94A3B8 */
 
-    --accent: 14 74% 63%;
-    --accent-foreground: 225 15% 7%;
+    --accent: 189 94% 43%;           /* #06B6D4 Cyan */
+    --accent-foreground: 222 47% 7%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 62.8% 45%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 225 10% 18%;          /* #262A34 */
-    --input: 225 10% 18%;
-    --ring: 14 74% 63%;
+    --border: 220 26% 18%;           /* #222D3D */
+    --input: 220 26% 18%;
+    --ring: 217 91% 60%;
 
-    --copper: 14 74% 63%;
-    --copper-rgb: 231, 133, 107;
-    --copper-glow: 0 0 35px rgba(231, 133, 107, 0.35);
-    --circuit-trace: rgba(231, 133, 107, 0.4);
+    --copper: 189 94% 43%;
+    --accent-rgb: 59, 130, 246;
+    --cyan-rgb: 6, 182, 212;
+    --copper-glow: 0 0 35px rgba(59, 130, 246, 0.3);
+    --circuit-trace: rgba(59, 130, 246, 0.35);
 
-    --glass-bg: rgba(21, 24, 31, 0.75);
-    --glass-border: rgba(231, 133, 107, 0.18);
+    --glass-bg: rgba(14, 21, 37, 0.78);
+    --glass-border: rgba(59, 130, 246, 0.2);
   }
 }
 
 @layer base {
   * {
     @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
   }
 
   body {
@@ -109,9 +116,16 @@
   }
 }
 
-/* Subtle film grain texture overlay */
+/* Subtle architectural grid & ambient texture */
 .bg-grain {
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.028'/%3E%3C/svg%3E");
+}
+
+.bg-tech-grid {
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, hsl(var(--border) / 0.35) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--border) / 0.35) 1px, transparent 1px);
 }
 
 /* Glassmorphism utility */
@@ -122,51 +136,37 @@
   border: 1px solid var(--glass-border);
 }
 
-.copper-glow {
-  box-shadow: var(--copper-glow);
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid hsl(var(--border) / 0.8);
 }
 
-.copper-border-glow {
-  border-color: rgba(var(--copper-rgb), 0.4);
-  box-shadow: 0 0 15px rgba(var(--copper-rgb), 0.2);
+.electric-glow {
+  box-shadow: 0 0 32px rgba(var(--accent-rgb), 0.25);
 }
 
-/* Pulse animation for PCB traces */
-@keyframes tracePulse {
-  0% {
-    stroke-dashoffset: 100;
-    opacity: 0.2;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    stroke-dashoffset: 0;
-    opacity: 0.2;
-  }
+.gradient-text-primary {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-sky-400 to-cyan-400;
 }
 
-.animate-trace {
-  stroke-dasharray: 20 80;
-  animation: tracePulse 3s linear infinite;
-}
-
-/* Zero Gravity Idle Levitation */
+/* Subtle Floating Animation */
 @keyframes levitate {
   0%, 100% {
-    transform: translateY(0px) rotate(0deg);
+    transform: translateY(0px);
   }
   50% {
-    transform: translateY(-8px) rotate(0.4deg);
+    transform: translateY(-7px);
   }
 }
 
 @keyframes levitate-slow {
   0%, 100% {
-    transform: translateY(0px) rotate(0deg);
+    transform: translateY(0px);
   }
   50% {
-    transform: translateY(-14px) rotate(-0.6deg);
+    transform: translateY(-12px);
   }
 }
 
@@ -176,6 +176,25 @@
 
 .animate-levitate-slow {
   animation: levitate-slow 8s ease-in-out infinite;
+}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Hide scrollbars when needed */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Custom Scrollbar */

@@ -15,6 +15,7 @@ export interface GitHubRepo {
   topics: string[];
   fork: boolean;
   archived: boolean;
+  isPrivate: boolean;
   pushed_at: string;
   created_at: string;
   updated_at: string;
@@ -28,6 +29,8 @@ export interface GitHubStats {
   totalRepos: number;
   totalStars: number;
   totalForks: number;
+  publicCount: number;
+  privateCount: number;
   topLanguage: string;
   hardwareCount: number;
   softwareCount: number;
@@ -42,7 +45,7 @@ export interface LanguageBreakdown {
 const CACHE_KEY_PREFIX = 'portfolio_github_repos_';
 const CACHE_DURATION_MS = 10 * 60 * 1000; // 10 minutes
 
-// Language color mapping for common dev & hardware languages
+// Language color mapping for common dev languages
 export const LANGUAGE_COLORS: Record<string, string> = {
   TypeScript: '#3178C6',
   JavaScript: '#F7DF1E',
@@ -54,52 +57,48 @@ export const LANGUAGE_COLORS: Record<string, string> = {
   HTML: '#E34C26',
   CSS: '#563D7C',
   Shell: '#89E051',
-  Assembly: '#6E4C13',
-  Verilog: '#B2B7F8',
-  VHDL: '#543978',
-  Java: '#B07219',
   PHP: '#4F5D95',
-  Ruby: '#701516',
-  Swift: '#F05138',
-  Kotlin: '#A97BFF',
-  Dart: '#00B4AB',
+  Java: '#B07219',
   Unknown: '#8B949E'
 };
 
-const HARDWARE_KEYWORDS = [
-  'hardware', 'embedded', 'firmware', 'pcb', 'kicad', 'altium', 'eagle',
-  'stm32', 'esp32', 'esp8266', 'arduino', 'raspberry', 'rpi', 'iot',
-  'microcontroller', 'mcu', 'arm', 'cortex', 'c', 'c++', 'verilog',
-  'vhdl', 'fpga', 'can-bus', 'i2c', 'spi', 'uart', 'lora', 'lorawan',
-  'sensors', 'bms', 'battery', 'freertos', 'zephyr', 'robotics', 'motor',
-  'circuit', 'schematic', 'drone', 'avionics', 'dma', 'adc', 'dac'
-];
+export function getStoredGitHubToken(): string | null {
+  try {
+    const local = localStorage.getItem('portfolio_github_token');
+    if (local && local.trim() !== '') return local.trim();
+  } catch {}
+  const envToken = (import.meta as any).env?.VITE_GITHUB_TOKEN;
+  if (envToken && typeof envToken === 'string' && envToken.trim() !== '') {
+    return envToken.trim();
+  }
+  return null;
+}
 
-/**
- * All GitHub repositories are software engineering projects
- */
+export function setStoredGitHubToken(token: string | null) {
+  try {
+    if (token && token.trim() !== '') {
+      localStorage.setItem('portfolio_github_token', token.trim());
+    } else {
+      localStorage.removeItem('portfolio_github_token');
+    }
+  } catch {}
+}
+
 export function classifyRepo(repo: {
   language: string | null;
   topics?: string[];
   name: string;
   description: string | null;
 }): 'hardware' | 'software' {
-  // All projects in user's GitHub are software applications & platforms
   return 'software';
 }
 
-/**
- * Prettifies repository name from kebab-case or snake_case to Title Case
- */
 export function prettifyRepoName(raw: string): string {
   return raw
     .replace(/[-_]+/g, ' ')
     .replace(/\b\w/g, char => char.toUpperCase());
 }
 
-/**
- * Formats ISO date to human relative time ("2 hours ago", "5 days ago", etc.)
- */
 export function getRelativeTime(isoDate: string): string {
   const now = Date.now();
   const past = new Date(isoDate).getTime();
@@ -118,16 +117,12 @@ export function getRelativeTime(isoDate: string): string {
   return `${diffYears}y ago`;
 }
 
-/**
- * Generates an activity heatmap dataset across the last 20 weeks from repository pushed_at timestamps
- */
 function buildActivityHeatmap(repos: GitHubRepo[]) {
   const days = 140; // 20 weeks * 7 days
   const today = new Date();
   const heatmap: { date: string; count: number; level: 0 | 1 | 2 | 3 | 4 }[] = [];
   const dateCounts: Record<string, number> = {};
 
-  // Count activity events per date
   repos.forEach(repo => {
     if (repo.pushed_at) {
       const dateStr = repo.pushed_at.split('T')[0];
@@ -143,9 +138,7 @@ function buildActivityHeatmap(repos: GitHubRepo[]) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
     const dateKey = d.toISOString().split('T')[0];
-    // Baseline natural activity density plus repo events
     const repoHits = dateCounts[dateKey] || 0;
-    // pseudo-distribution based on weekday and repo recency for visual elegance
     const dayOfWeek = d.getDay();
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
     const baseVariance = (dateKey.charCodeAt(8) + dateKey.charCodeAt(9)) % 4;
@@ -168,41 +161,64 @@ function buildActivityHeatmap(repos: GitHubRepo[]) {
 }
 
 /**
- * Fetches all public repositories with pagination, caching, and rate-limit handling
+ * Fetches all repositories (public or all 82 authenticated) with pagination & caching
  */
 export async function fetchGitHubRepos(
   username: string = PORTFOLIO_CONFIG.githubUsername,
-  forceRefresh: boolean = false
-): Promise<{ repos: GitHubRepo[]; stats: GitHubStats; isCached: boolean; isRateLimited: boolean }> {
-  const cacheKey = `${CACHE_KEY_PREFIX}${username}`;
-  
+  forceRefresh: boolean = false,
+  explicitToken?: string | null
+): Promise<{
+  repos: GitHubRepo[];
+  stats: GitHubStats;
+  isCached: boolean;
+  isRateLimited: boolean;
+  isAuthenticated: boolean;
+  totalAvailable: number;
+}> {
+  const token = explicitToken !== undefined ? explicitToken : getStoredGitHubToken();
+  const isAuthenticated = Boolean(token && token.trim() !== '');
+  const cacheKey = `${CACHE_KEY_PREFIX}${username}${isAuthenticated ? '_auth' : '_pub'}`;
+
   if (!forceRefresh) {
     try {
       const cached = localStorage.getItem(cacheKey);
       if (cached) {
         const { timestamp, data } = JSON.parse(cached);
-        if (Date.now() - timestamp < CACHE_DURATION_MS && data && data.length > 0) {
+        if (Date.now() - timestamp < CACHE_DURATION_MS && Array.isArray(data) && data.length > 0) {
           const stats = calculateStats(data);
-          return { repos: data, stats, isCached: true, isRateLimited: false };
+          return {
+            repos: data,
+            stats,
+            isCached: true,
+            isRateLimited: false,
+            isAuthenticated,
+            totalAvailable: data.length
+          };
         }
       }
-    } catch {
-      // Ignore localStorage read errors
-    }
+    } catch {}
   }
 
   let page = 1;
   let allRawRepos: any[] = [];
   let isRateLimited = false;
 
+  const headers: Record<string, string> = {
+    Accept: 'application/vnd.github.v3+json'
+  };
+  if (token) {
+    headers.Authorization = `Bearer ${token.trim()}`;
+  }
+
   try {
     while (true) {
-      const url = `https://api.github.com/users/${encodeURIComponent(username)}/repos?per_page=100&page=${page}&sort=pushed`;
-      const response = await fetch(url, {
-        headers: {
-          Accept: 'application/vnd.github.v3+json'
-        }
-      });
+      // If token provided, query /user/repos to fetch all 82 repos (public, private, org);
+      // otherwise query public /users/:username/repos
+      const url = isAuthenticated
+        ? `https://api.github.com/user/repos?per_page=100&page=${page}&affiliation=owner,collaborator,organization_member&visibility=all&sort=pushed`
+        : `https://api.github.com/users/${encodeURIComponent(username)}/repos?per_page=100&page=${page}&sort=pushed`;
+
+      const response = await fetch(url, { headers });
 
       if (response.status === 403 || response.status === 429) {
         isRateLimited = true;
@@ -224,62 +240,110 @@ export async function fetchGitHubRepos(
       allRawRepos = allRawRepos.concat(repos);
 
       if (repos.length < 100 || page >= 4) {
-        break; // Reached last page
+        break;
       }
       page++;
     }
   } catch (err) {
     console.warn('GitHub API fetch failed, falling back to cache/curated repos:', err);
-    // Try localStorage even if stale
     try {
       const cached = localStorage.getItem(cacheKey);
       if (cached) {
         const { data } = JSON.parse(cached);
-        if (data && data.length > 0) {
+        if (Array.isArray(data) && data.length > 0) {
           const stats = calculateStats(data);
-          return { repos: data, stats, isCached: true, isRateLimited: true };
+          return {
+            repos: data,
+            stats,
+            isCached: true,
+            isRateLimited: true,
+            isAuthenticated,
+            totalAvailable: data.length
+          };
         }
       }
     } catch {}
-    
-    // Fall back to curated portfolio config projects
+
     const fallback = PORTFOLIO_CONFIG.fallbackProjects.map(normalizeRepo);
     const stats = calculateStats(fallback);
-    return { repos: fallback, stats, isCached: false, isRateLimited: true };
+    return {
+      repos: fallback,
+      stats,
+      isCached: false,
+      isRateLimited: true,
+      isAuthenticated: false,
+      totalAvailable: fallback.length
+    };
   }
 
-  // If rate limited or empty, fallback
   if (allRawRepos.length === 0) {
     try {
       const cached = localStorage.getItem(cacheKey);
       if (cached) {
         const { data } = JSON.parse(cached);
-        if (data && data.length > 0) {
-          return { repos: data, stats: calculateStats(data), isCached: true, isRateLimited };
+        if (Array.isArray(data) && data.length > 0) {
+          return {
+            repos: data,
+            stats: calculateStats(data),
+            isCached: true,
+            isRateLimited,
+            isAuthenticated,
+            totalAvailable: data.length
+          };
         }
       }
     } catch {}
 
     const fallback = PORTFOLIO_CONFIG.fallbackProjects.map(normalizeRepo);
-    return { repos: fallback, stats: calculateStats(fallback), isCached: false, isRateLimited: true };
+    return {
+      repos: fallback,
+      stats: calculateStats(fallback),
+      isCached: false,
+      isRateLimited: true,
+      isAuthenticated: false,
+      totalAvailable: fallback.length
+    };
   }
 
-  // Normalize repos
-  const normalizedRepos: GitHubRepo[] = allRawRepos.map(normalizeRepo);
+  // Deduplicate by ID
+  const seenIds = new Set<number>();
+  const uniqueRaw = allRawRepos.filter(r => {
+    if (!r.id || seenIds.has(r.id)) return false;
+    seenIds.add(r.id);
+    return true;
+  });
 
-  // Cache in localStorage
+  const normalizedRepos: GitHubRepo[] = uniqueRaw.map(normalizeRepo);
+
   try {
-    localStorage.setItem(cacheKey, JSON.stringify({
-      timestamp: Date.now(),
-      data: normalizedRepos
-    }));
-  } catch {
-    // LocalStorage write error (quota)
-  }
+    localStorage.setItem(
+      cacheKey,
+      JSON.stringify({
+        timestamp: Date.now(),
+        data: normalizedRepos
+      })
+    );
+  } catch {}
 
   const stats = calculateStats(normalizedRepos);
-  return { repos: normalizedRepos, stats, isCached: false, isRateLimited };
+  return {
+    repos: normalizedRepos,
+    stats,
+    isCached: false,
+    isRateLimited,
+    isAuthenticated,
+    totalAvailable: normalizedRepos.length
+  };
 }
+
+const KNOWN_REPO_DESCRIPTIONS: Record<string, string> = {
+  'AifaServicesNet1': 'Multi-sector business service platform and corporate web application with interactive service booking and quotes.',
+  'Enterprise-Marketing-ERP-POS-SYSTEM': 'Enterprise ERP, Point of Sale (POS), and business management system for inventory, sales, and analytics.',
+  'medflux-web': 'Healthcare and digital clinic web platform engineered with modern frontend standards.',
+  'Gringo-admin-system': 'Administrative management dashboard and operational control system.',
+  'ecommerce1': 'Full-featured modern e-commerce storefront with product catalog and shopping cart.',
+  'Ephraim-S-Porfolio': 'Personal software engineering portfolio and project showcase web application.'
+};
 
 function normalizeRepo(raw: any): GitHubRepo {
   const category = classifyRepo({
@@ -289,12 +353,17 @@ function normalizeRepo(raw: any): GitHubRepo {
     description: raw.description
   });
 
+  const rawDesc = raw.description && typeof raw.description === 'string' ? raw.description.trim() : '';
+  const description = (rawDesc && rawDesc !== 'No description provided.')
+    ? rawDesc
+    : KNOWN_REPO_DESCRIPTIONS[raw.name] || 'Full-stack software application engineered with modern standards and high responsiveness.';
+
   return {
     id: raw.id,
     name: raw.name,
     cleanName: prettifyRepoName(raw.name),
     full_name: raw.full_name || `${PORTFOLIO_CONFIG.githubUsername}/${raw.name}`,
-    description: raw.description || 'No description provided.',
+    description,
     html_url: raw.html_url,
     homepage: raw.homepage && raw.homepage.trim() !== '' ? raw.homepage : null,
     stargazers_count: raw.stargazers_count || 0,
@@ -304,6 +373,7 @@ function normalizeRepo(raw: any): GitHubRepo {
     topics: Array.isArray(raw.topics) ? raw.topics : [],
     fork: Boolean(raw.fork),
     archived: Boolean(raw.archived),
+    isPrivate: Boolean(raw.private),
     pushed_at: raw.pushed_at || new Date().toISOString(),
     created_at: raw.created_at || new Date().toISOString(),
     updated_at: raw.updated_at || raw.pushed_at || new Date().toISOString(),
@@ -314,17 +384,15 @@ function normalizeRepo(raw: any): GitHubRepo {
   };
 }
 
-/**
- * Calculates global stats from repositories
- */
 function calculateStats(repos: GitHubRepo[]): GitHubStats {
   let totalStars = 0;
   let totalForks = 0;
   let hardwareCount = 0;
   let softwareCount = 0;
+  let publicCount = 0;
+  let privateCount = 0;
   const langCounts: Record<string, number> = {};
 
-  // Sort descending by pushed_at to find most recent
   const sortedByRecent = [...repos].sort(
     (a, b) => new Date(b.pushed_at).getTime() - new Date(a.pushed_at).getTime()
   );
@@ -332,6 +400,9 @@ function calculateStats(repos: GitHubRepo[]): GitHubStats {
   repos.forEach(r => {
     totalStars += r.stargazers_count;
     totalForks += r.forks_count;
+    if (r.isPrivate) privateCount++;
+    else publicCount++;
+
     if (r.isHardware) hardwareCount++;
     else softwareCount++;
 
@@ -340,7 +411,7 @@ function calculateStats(repos: GitHubRepo[]): GitHubStats {
     }
   });
 
-  let topLanguage = 'TypeScript / C++';
+  let topLanguage = 'TypeScript / JavaScript';
   let maxCount = 0;
   for (const [lang, count] of Object.entries(langCounts)) {
     if (count > maxCount) {
@@ -355,6 +426,8 @@ function calculateStats(repos: GitHubRepo[]): GitHubStats {
     totalRepos: repos.length,
     totalStars,
     totalForks,
+    publicCount,
+    privateCount,
     topLanguage,
     hardwareCount,
     softwareCount,
@@ -363,23 +436,24 @@ function calculateStats(repos: GitHubRepo[]): GitHubStats {
   };
 }
 
-/**
- * Lazily fetches the README content for a repo in rendered HTML format
- */
 export async function fetchRepoReadme(fullName: string): Promise<string> {
+  const token = getStoredGitHubToken();
+  const headers: Record<string, string> = {
+    Accept: 'application/vnd.github.html'
+  };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
   try {
-    const res = await fetch(`https://api.github.com/repos/${fullName}/readme`, {
-      headers: {
-        Accept: 'application/vnd.github.html'
-      }
-    });
+    const res = await fetch(`https://api.github.com/repos/${fullName}/readme`, { headers });
     if (res.ok) {
       return await res.text();
     }
-    // Try raw fallback
     const resRaw = await fetch(`https://api.github.com/repos/${fullName}/readme`, {
       headers: {
-        Accept: 'application/vnd.github.raw'
+        Accept: 'application/vnd.github.raw',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
       }
     });
     if (resRaw.ok) {
@@ -392,12 +466,15 @@ export async function fetchRepoReadme(fullName: string): Promise<string> {
   return '<div class="py-12 text-center text-muted-foreground"><p>No detailed README available for this repository.</p></div>';
 }
 
-/**
- * Lazily fetches language byte breakdown for a repository
- */
 export async function fetchRepoLanguages(fullName: string): Promise<LanguageBreakdown> {
+  const token = getStoredGitHubToken();
+  const headers: Record<string, string> = {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
   try {
-    const res = await fetch(`https://api.github.com/repos/${fullName}/languages`);
+    const res = await fetch(`https://api.github.com/repos/${fullName}/languages`, { headers });
     if (res.ok) {
       return await res.json();
     }

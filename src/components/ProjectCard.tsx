@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { GitHubRepo, LANGUAGE_COLORS } from '../lib/github';
 import {
   Star,
@@ -36,10 +36,36 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   onDragStart
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
   const [tilt, setTilt] = useState({ rx: 0, ry: 0, glareX: 50, glareY: 50, glareOpacity: 0 });
   const [isInteractive, setIsInteractive] = useState(false);
   const [iframeKey, setIframeKey] = useState(0);
   const [isIframeLoaded, setIsIframeLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!viewportRef.current) return;
+    const updateSize = () => {
+      if (viewportRef.current) {
+        setViewportSize({
+          width: viewportRef.current.clientWidth,
+          height: viewportRef.current.clientHeight
+        });
+      }
+    };
+    updateSize();
+    const ro = new ResizeObserver(updateSize);
+    ro.observe(viewportRef.current);
+    return () => ro.disconnect();
+  }, []);
+
+  // Compute full responsive desktop scaling to display the complete page
+  const targetDesktopWidth = featured ? 1200 : 960;
+  const scale = viewportSize.width > 0 ? Math.min(1, viewportSize.width / targetDesktopWidth) : (featured ? 0.625 : 0.4);
+  const iframeWidth = targetDesktopWidth;
+  const iframeHeight = viewportSize.height > 0 && scale > 0
+    ? Math.round(viewportSize.height / scale)
+    : (featured ? 800 : 600);
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (isAntigravity || isInteractive || !cardRef.current) return;
@@ -109,7 +135,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       data-cursor={isAntigravity ? 'drag' : isInteractive ? 'default' : 'view'}
       style={cardStyle}
       className={`group relative rounded-2xl bg-card border border-border/90 hover:border-primary/60 transition-colors flex flex-col justify-between overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-primary/5 ${
-        featured ? 'md:col-span-2 md:row-span-2 min-h-[460px]' : 'min-h-[400px]'
+        featured ? 'w-full h-full min-h-[560px] lg:min-h-[620px]' : 'min-h-[400px]'
       }`}
     >
       {/* 3D Specular Glare Highlight */}
@@ -169,22 +195,35 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           className="flex-1 max-w-[340px] flex items-center gap-2 px-3 py-1 rounded-full bg-background/90 border border-border/80 text-[11px] font-mono text-muted-foreground group-hover:border-primary/40 transition-colors truncate"
           title={liveUrl || repo.html_url}
         >
-          <Lock className="w-3 h-3 text-emerald-500 shrink-0" />
+          {repo.isPrivate ? (
+            <Lock className="w-3 h-3 text-amber-500 shrink-0" />
+          ) : (
+            <Lock className="w-3 h-3 text-emerald-500 shrink-0" />
+          )}
           <span className="truncate text-foreground/90 font-medium">{displayUrl}</span>
         </div>
 
         {/* Top-Right Badges: Live Status & New Tab Launcher */}
         <div className="flex items-center gap-2 font-mono text-[11px] shrink-0">
+          {repo.isPrivate && (
+            <span
+              className="inline-flex items-center gap-1 text-amber-500 font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/25"
+              title="Private Repository"
+            >
+              <Lock className="w-2.5 h-2.5 text-amber-500" />
+              <span>PRIVATE</span>
+            </span>
+          )}
           {liveUrl ? (
             <span className="inline-flex items-center gap-1 text-emerald-500 font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span className="hidden sm:inline">LIVE</span>
             </span>
-          ) : (
+          ) : !repo.isPrivate ? (
             <span className="inline-flex items-center gap-1 text-muted-foreground px-2 py-0.5 rounded-full bg-secondary">
               <span>SOURCE</span>
             </span>
-          )}
+          ) : null}
 
           {liveUrl && (
             <a
@@ -204,7 +243,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       {/* ============================================================== */}
       {/* LIVE WEBPAGE VIEWPORT (Embedded Interactive Live Page)         */}
       {/* ============================================================== */}
-      <div className="relative w-full h-56 sm:h-64 overflow-hidden bg-background border-b border-border/70 group/viewport">
+      <div
+        ref={viewportRef}
+        className={`relative w-full overflow-hidden bg-background border-b border-border/70 group/viewport ${
+          featured ? 'flex-1 min-h-[380px] sm:min-h-[440px] lg:min-h-[480px]' : 'h-56 sm:h-64'
+        }`}
+      >
         {liveUrl ? (
           <>
             {/* Embedded Live Web Application via Iframe */}
@@ -215,7 +259,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               loading="lazy"
               onLoad={() => setIsIframeLoaded(true)}
               sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-              className={`w-[160%] h-[160%] origin-top-left transform scale-[0.625] border-0 transition-opacity duration-300 ${
+              style={{
+                width: `${iframeWidth}px`,
+                height: `${iframeHeight}px`,
+                transform: `scale(${scale})`,
+                transformOrigin: '0 0'
+              }}
+              className={`border-0 transition-opacity duration-300 ${
                 isIframeLoaded ? 'opacity-100' : 'opacity-20'
               } ${isInteractive ? 'pointer-events-auto' : 'pointer-events-none'}`}
             />
@@ -276,7 +326,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       {/* BROWSER CARD METADATA (Details, Tags, Language, Source Code)   */}
       {/* ============================================================== */}
       <div
-        className="p-5 flex-1 flex flex-col justify-between cursor-pointer"
+        className="p-5 shrink-0 flex flex-col justify-between cursor-pointer bg-card"
         onClick={() => {
           if (!isInteractive) onSelect(repo);
         }}

@@ -1,40 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import Preloader from '../components/Preloader';
-import CustomCursor from '../components/CustomCursor';
 import Navbar from '../components/Navbar';
 import HeroSection from '../components/HeroSection';
-import DualitySection from '../components/DualitySection';
-import ProjectsSection from '../components/ProjectsSection';
 import AboutSection from '../components/AboutSection';
+import SkillsSection from '../components/SkillsSection';
+import TechnicalSupportSection from '../components/TechnicalSupportSection';
 import ExperienceSection from '../components/ExperienceSection';
+import ServicesSection from '../components/ServicesSection';
+import ProjectsSection from '../components/ProjectsSection';
+import ProcessSection from '../components/ProcessSection';
+import EducationSection from '../components/EducationSection';
 import ContactSection from '../components/ContactSection';
 import Footer from '../components/Footer';
 import CommandPalette from '../components/CommandPalette';
+import CVPreviewModal from '../components/CVPreviewModal';
 import { initSmoothScroll } from '../lib/lenis';
 import { fetchGitHubRepos, GitHubRepo } from '../lib/github';
 import { PORTFOLIO_CONFIG } from '../config';
 
 const Index: React.FC = () => {
-  const [preloaderDone, setPreloaderDone] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isCVPreviewOpen, setIsCVPreviewOpen] = useState(false);
   const [latestRepo, setLatestRepo] = useState<GitHubRepo | null>(null);
+  const [repoCount, setRepoCount] = useState<number | null>(null);
 
   useEffect(() => {
-    // Initialize smooth scrolling with Lenis / RAF
     const scroller = initSmoothScroll();
 
-    // Fetch initial GitHub telemetry for "Currently Building" status
     fetchGitHubRepos(PORTFOLIO_CONFIG.githubUsername)
       .then(res => {
         if (res.stats.mostRecentRepo) {
           setLatestRepo(res.stats.mostRecentRepo);
         }
+        if (res.stats.totalRepos) {
+          setRepoCount(res.stats.totalRepos);
+        }
       })
       .catch(() => {});
 
-    // Keyboard listener for Cmd+K / Ctrl+K
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         setIsCommandPaletteOpen(prev => !prev);
       }
@@ -59,54 +63,57 @@ const Index: React.FC = () => {
     <div className="relative min-h-screen bg-background text-foreground font-sans bg-grain selection:bg-primary/20 selection:text-primary">
       {/* Skip link for keyboard accessibility */}
       <a
-        href="#projects"
+        href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 z-50 px-4 py-2 bg-primary text-primary-foreground font-mono text-xs rounded-lg shadow-lg"
       >
-        Skip to Projects
+        Skip to Main Content
       </a>
 
-      {/* Signature Preloader */}
-      {!preloaderDone && <Preloader onComplete={() => setPreloaderDone(true)} />}
-
-      {/* Zero Gravity Custom Cursor */}
-      <CustomCursor />
-
-      {/* Floating Glassmorphic Navbar */}
+      {/* Sticky Navigation Bar */}
       <Navbar onOpenCommandPalette={() => setIsCommandPaletteOpen(true)} />
 
-      {/* Main Content Sections */}
+      {/* Main Content */}
       <main id="main-content">
-        {/* 1. Hero with WebGL PCB Constellation & Boot Terminal */}
         <HeroSection
           latestRepo={latestRepo}
+          repoCount={repoCount}
           onExploreProjects={() => scrollToSection('projects')}
-          onOpenDuality={() => scrollToSection('duality')}
-          onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+          onContactClick={() => scrollToSection('contact')}
+          onOpenCVPreview={() => setIsCVPreviewOpen(true)}
         />
 
-        {/* 2. Hardware / Software Duality (Split-morph View) */}
-        <DualitySection />
+        <AboutSection onOpenCVPreview={() => setIsCVPreviewOpen(true)} />
 
-        {/* 3. GitHub Projects Section (Live fetch, Bento, Antigravity Physics) */}
-        <ProjectsSection />
+        <SkillsSection />
 
-        {/* 4. Identity & Foundational Bio (Parallax frame, Skills Matrix) */}
-        <AboutSection />
+        <TechnicalSupportSection />
 
-        {/* 5. Experience (Horizontal Timeline) */}
         <ExperienceSection />
 
-        {/* 6. Contact Section (Magnetic CTA, Dispatch Form) */}
+        <ServicesSection />
+
+        <ProjectsSection />
+
+        <ProcessSection />
+
+        <EducationSection />
+
         <ContactSection />
       </main>
 
-      {/* 7. Footer with Live Local Time in Accra & Solder Fumes */}
       <Footer />
 
       {/* Command Palette (⌘K / Ctrl+K) */}
       <CommandPalette
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
+        onOpenCVPreview={() => setIsCVPreviewOpen(true)}
+      />
+
+      {/* CV Preview Modal */}
+      <CVPreviewModal
+        isOpen={isCVPreviewOpen}
+        onClose={() => setIsCVPreviewOpen(false)}
       />
     </div>
   );

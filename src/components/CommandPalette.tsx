@@ -2,11 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { PORTFOLIO_CONFIG } from '../config';
 import {
   Search,
-  Cpu,
   Code2,
   Orbit,
   Moon,
-  Sun,
   Mail,
   Github,
   Linkedin,
@@ -15,13 +13,18 @@ import {
   Layers,
   ArrowRight,
   Terminal,
-  ExternalLink,
-  Check
+  Check,
+  Wrench,
+  GraduationCap,
+  Briefcase,
+  Download,
+  Key
 } from 'lucide-react';
 
 interface CommandPaletteProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenCVPreview?: () => void;
   onToggleTheme?: () => void;
   onToggleAntigravity?: () => void;
 }
@@ -29,6 +32,7 @@ interface CommandPaletteProps {
 export const CommandPalette: React.FC<CommandPaletteProps> = ({
   isOpen,
   onClose,
+  onOpenCVPreview,
   onToggleTheme,
   onToggleAntigravity
 }) => {
@@ -37,11 +41,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        if (isOpen) onClose();
-        else onClose(); // parent handles toggle
-      }
       if (e.key === 'Escape' && isOpen) {
         onClose();
       }
@@ -67,26 +66,64 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     setTimeout(() => {
       setCopied(false);
       onClose();
-    }, 1200);
+    }, 1000);
+  };
+
+  const triggerDownloadCV = () => {
+    const link = document.createElement('a');
+    link.href = PORTFOLIO_CONFIG.socials.resume;
+    link.download = PORTFOLIO_CONFIG.cvFilename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    onClose();
   };
 
   const commands = [
     {
       group: 'Navigation',
       items: [
-        { label: 'Jump to Hero & Telemetry', icon: Terminal, action: () => scrollTo('hero') },
-        { label: 'Hardware/Software Duality', icon: Cpu, action: () => scrollTo('duality') },
-        { label: 'GitHub Projects Matrix', icon: Code2, action: () => scrollTo('projects') },
-        { label: 'Identity & Architecture Bio', icon: Layers, action: () => scrollTo('about') },
-        { label: 'Engineering Timeline', icon: FileText, action: () => scrollTo('experience') },
-        { label: 'Contact & Dispatch', icon: Mail, action: () => scrollTo('contact') },
+        { label: 'Home & Hero Overview', icon: Terminal, action: () => scrollTo('hero') },
+        { label: 'About Me & Dual Identity', icon: Layers, action: () => scrollTo('about') },
+        { label: 'Technical Skills & Stack', icon: Code2, action: () => scrollTo('skills') },
+        { label: 'Technical Support & IT Operations', icon: Wrench, action: () => scrollTo('technical-support') },
+        { label: 'Professional Experience', icon: Briefcase, action: () => scrollTo('experience') },
+        { label: 'Services & Capabilities', icon: Layers, action: () => scrollTo('services') },
+        { label: 'Projects & Case Studies', icon: Code2, action: () => scrollTo('projects') },
+        { label: 'Education & Certifications', icon: GraduationCap, action: () => scrollTo('education') },
+        { label: 'Contact & Inquiry Form', icon: Mail, action: () => scrollTo('contact') }
       ]
     },
     {
-      group: 'Controls & System State',
+      group: 'Actions & Controls',
       items: [
         {
-          label: 'Toggle Zero-Gravity Antigravity Mode',
+          label: 'Download Curriculum Vitae (PDF)',
+          icon: Download,
+          action: triggerDownloadCV
+        },
+        ...(onOpenCVPreview
+          ? [
+              {
+                label: 'Preview Curriculum Vitae in Modal',
+                icon: FileText,
+                action: () => {
+                  onOpenCVPreview();
+                  onClose();
+                }
+              }
+            ]
+          : []),
+        {
+          label: 'Sync All 82 GitHub Repositories (Public & Private)',
+          icon: Key,
+          action: () => {
+            window.dispatchEvent(new CustomEvent('open-github-token-modal'));
+            onClose();
+          }
+        },
+        {
+          label: 'Toggle Antigravity Mode in Projects',
           icon: Orbit,
           action: () => {
             const btn = document.querySelector('[data-antigravity-toggle]') as HTMLButtonElement;
@@ -96,7 +133,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           }
         },
         {
-          label: 'Toggle Theme (Light / Dark Circular Reveal)',
+          label: 'Toggle Theme (Light / Dark)',
           icon: Moon,
           action: () => {
             if (onToggleTheme) onToggleTheme();
@@ -106,49 +143,54 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           }
         },
         {
-          label: copied ? 'Email Copied!' : 'Copy Direct Email Address',
+          label: copied ? 'Email Copied!' : `Copy Email (${PORTFOLIO_CONFIG.email})`,
           icon: copied ? Check : Copy,
           action: handleCopyEmail
         }
       ]
     },
     {
-      group: 'External Links & Channels',
+      group: 'External Profiles',
       items: [
         {
-          label: `Open GitHub Profile (@${PORTFOLIO_CONFIG.githubUsername})`,
+          label: `Open GitHub (@${PORTFOLIO_CONFIG.githubUsername})`,
           icon: Github,
-          action: () => window.open(PORTFOLIO_CONFIG.socials.github, '_blank')
+          action: () => {
+            window.open(PORTFOLIO_CONFIG.socials.github, '_blank', 'noopener,noreferrer');
+            onClose();
+          }
         },
         {
           label: 'Open LinkedIn Profile',
           icon: Linkedin,
-          action: () => window.open(PORTFOLIO_CONFIG.socials.linkedin, '_blank')
-        },
-        {
-          label: 'Download Curriculum Vitae (PDF)',
-          icon: FileText,
-          action: () => window.open(PORTFOLIO_CONFIG.socials.resume, '_blank')
+          action: () => {
+            window.open(PORTFOLIO_CONFIG.socials.linkedin, '_blank', 'noopener,noreferrer');
+            onClose();
+          }
         }
       ]
     }
   ];
 
-  const filteredGroups = commands.map(group => ({
-    ...group,
-    items: group.items.filter(item =>
-      item.label.toLowerCase().includes(query.toLowerCase())
-    )
-  })).filter(group => group.items.length > 0);
+  const filteredGroups = commands
+    .map(group => ({
+      ...group,
+      items: group.items.filter(item =>
+        item.label.toLowerCase().includes(query.toLowerCase())
+      )
+    }))
+    .filter(group => group.items.length > 0);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      {/* Backdrop */}
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Command Palette"
+    >
       <div className="absolute inset-0" onClick={onClose} />
 
-      {/* Palette Modal */}
       <div className="relative w-full max-w-xl rounded-2xl bg-card border border-border shadow-2xl overflow-hidden z-10 animate-in zoom-in-95 duration-200">
-        {/* Search Input Bar */}
         <div className="flex items-center gap-3 px-4 py-3.5 border-b border-border bg-secondary/50">
           <Search className="w-5 h-5 text-primary shrink-0" />
           <input
@@ -164,7 +206,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           </kbd>
         </div>
 
-        {/* Command list */}
         <div className="max-h-96 overflow-y-auto p-3 space-y-4 font-mono text-xs">
           {filteredGroups.map(group => (
             <div key={group.group}>
@@ -177,6 +218,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                   return (
                     <button
                       key={idx}
+                      type="button"
                       onClick={item.action}
                       className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-secondary text-foreground/90 hover:text-foreground transition-colors text-left group"
                     >
@@ -199,13 +241,9 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           )}
         </div>
 
-        {/* Footer */}
         <div className="px-4 py-2.5 border-t border-border bg-secondary/30 flex items-center justify-between text-[11px] font-mono text-muted-foreground">
-          <span>PORTFOLIO OS // {PORTFOLIO_CONFIG.name}</span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-            <span>NAVIGATION ONLINE</span>
-          </span>
+          <span>{PORTFOLIO_CONFIG.name}</span>
+          <span>Quick Navigation</span>
         </div>
       </div>
     </div>

@@ -1,231 +1,210 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { PORTFOLIO_CONFIG } from '../config';
-import { Cpu, Code2, Wrench, Shield, Layers, Award, Terminal } from 'lucide-react';
+import {
+  Code2,
+  Wrench,
+  CheckCircle2,
+  Download,
+  FileText,
+  Layers,
+  ShieldCheck,
+  Sparkles
+} from 'lucide-react';
 
-export const AboutSection: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'all' | 'hardware' | 'software'>('all');
-  const [hoveredSkill, setHoveredSkill] = useState<string | null>(null);
+interface AboutSectionProps {
+  onOpenCVPreview?: () => void;
+}
 
-  const { about, skills } = PORTFOLIO_CONFIG;
+export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenCVPreview }) => {
+  const { about } = PORTFOLIO_CONFIG;
 
-  const displayedSkills = [
-    ...(activeTab === 'all' || activeTab === 'hardware'
-      ? skills.hardware.map(s => ({ ...s, group: 'hardware' }))
-      : []),
-    ...(activeTab === 'all' || activeTab === 'software'
-      ? skills.software.map(s => ({ ...s, group: 'software' }))
-      : [])
+  const softwareCapabilities = [
+    'Software architecture & full-stack development',
+    'Frontend engineering (React.js, TypeScript, Tailwind CSS)',
+    'Backend & RESTful API development (Node.js, Express, PHP)',
+    'Database design & performance tuning (PostgreSQL, MongoDB, SQL)',
+    'Cross-platform desktop (Electron) & mobile (React Native) apps',
+    'Business management, POS & multi-tenant ERP solutions'
+  ];
+
+  const supportCapabilities = [
+    'Hardware, software & operating system troubleshooting',
+    'Software installation, configuration & compatibility testing',
+    'System administration, servers & user identity management',
+    'Network & connectivity troubleshooting (LAN, Wi-Fi, ISP, Starlink)',
+    'Router, managed switch & firewall configuration',
+    'Technical problem diagnosis, monitoring & end-user assistance'
   ];
 
   return (
     <section
       id="about"
-      className="relative py-24 px-6 sm:px-10 lg:px-16 border-b border-border/50 bg-background"
+      className="relative py-20 sm:py-24 px-4 sm:px-8 lg:px-12 border-b border-border/60 bg-background"
     >
       <div className="max-w-7xl mx-auto">
         {/* Section Tag */}
         <div className="inline-flex items-center gap-2 mb-3">
           <span className="w-2 h-2 rounded-full bg-primary" />
-          <span className="font-mono text-xs uppercase tracking-widest text-primary font-medium">
-            IDENTITY &amp; FOUNDATIONS
+          <span className="font-mono text-xs uppercase tracking-widest text-primary font-semibold">
+            About Me
           </span>
         </div>
 
-        {/* Top Grid: Bio & Floating Parallax Portrait Frame */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center mb-20">
-          {/* Left Text Column */}
-          <div className="lg:col-span-7">
-            <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-foreground font-normal tracking-tight mb-6 leading-[1.08]">
-              Operating at the intersection of{' '}
-              <span className="italic text-primary">atoms and bits.</span>
+        {/* Main Split Layout: Biography + Portrait */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center mb-16">
+          {/* Left Column */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.45 }}
+            className="lg:col-span-7 space-y-5"
+          >
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-[1.12]">
+              Practical engineering grounded in{' '}
+              <span className="gradient-text-primary">real-world reliability.</span>
             </h2>
 
-            <p className="text-lg text-foreground/90 font-sans font-light leading-relaxed mb-6">
+            <p className="text-base sm:text-lg text-foreground/90 font-medium leading-relaxed">
               {about.lead}
             </p>
 
-            <div className="space-y-4 text-base text-muted-foreground font-sans font-light leading-relaxed">
-              {about.paragraphs.map((p, idx) => (
-                <p key={idx}>{p}</p>
+            <div className="space-y-4 text-sm sm:text-base text-muted-foreground leading-relaxed">
+              {about.paragraphs.map((paragraph, idx) => (
+                <p key={idx}>{paragraph}</p>
               ))}
             </div>
 
-            {/* Quick Core Principles */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8 pt-8 border-t border-border/60">
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-secondary text-primary shrink-0 mt-0.5">
-                  <Cpu className="w-4 h-4" />
-                </div>
-                <div>
-                  <h4 className="font-mono text-xs font-semibold text-foreground">
-                    Hardware Determinism
-                  </h4>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Hard real-time ISR response, minimal jitter, and fail-safe watchdog systems.
-                  </p>
-                </div>
-              </div>
+            {/* Action Buttons */}
+            <div className="flex flex-wrap items-center gap-3 pt-3">
+              <a
+                href={PORTFOLIO_CONFIG.socials.resume}
+                download={PORTFOLIO_CONFIG.cvFilename}
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-primary text-primary-foreground text-xs sm:text-sm font-semibold shadow-sm hover:opacity-95 transition-opacity"
+              >
+                <Download className="w-4 h-4" />
+                <span>Download Full CV</span>
+              </a>
 
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-secondary text-primary shrink-0 mt-0.5">
-                  <Code2 className="w-4 h-4" />
-                </div>
-                <div>
-                  <h4 className="font-mono text-xs font-semibold text-foreground">
-                    Tactile Software
-                  </h4>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Sub-second UI response, fluid 60fps animations, and zero-compromise UX.
-                  </p>
-                </div>
-              </div>
+              {onOpenCVPreview && (
+                <button
+                  type="button"
+                  onClick={onOpenCVPreview}
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-card hover:bg-secondary border border-border text-foreground text-xs sm:text-sm font-medium transition-colors"
+                >
+                  <FileText className="w-4 h-4 text-primary" />
+                  <span>View CV Summary</span>
+                </button>
+              )}
             </div>
-          </div>
+          </motion.div>
 
-          {/* Right Floating Parallax Portrait Frame */}
-          <div className="lg:col-span-5 flex justify-center">
-            <div className="relative w-72 sm:w-84">
-              {/* Circuit hair-line decorative border frame */}
-              <div className="absolute -inset-4 rounded-3xl border border-primary/30 -rotate-2 animate-levitate pointer-events-none" />
-              <div className="absolute -inset-1 rounded-2xl border border-border rotate-1 animate-levitate-slow pointer-events-none" />
-
-              {/* Photo Container */}
-              <div className="relative rounded-2xl overflow-hidden bg-card border-2 border-border shadow-2xl aspect-[4/5] group">
+          {/* Right Column: Portrait Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="lg:col-span-5 flex justify-center"
+          >
+            <div className="relative w-full max-w-sm">
+              <div className="absolute -inset-3 rounded-3xl bg-gradient-to-tr from-primary/20 via-transparent to-cyan-500/20 blur-xl pointer-events-none" />
+              <div className="relative rounded-2xl overflow-hidden bg-card border border-border shadow-2xl aspect-[4/5] group">
                 <img
-                  src="/IMG_20260108_145926_631~2.jpg"
-                  alt={PORTFOLIO_CONFIG.name}
-                  className="w-full h-full object-cover grayscale contrast-105 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
-                  onError={e => {
-                    // Fallback avatar if local photo not found
-                    (e.target as HTMLElement).style.display = 'none';
-                  }}
+                  src={PORTFOLIO_CONFIG.altPhotoUrl || PORTFOLIO_CONFIG.photoUrl}
+                  alt={`${PORTFOLIO_CONFIG.name} — Software Engineer & Technical Support Specialist`}
+                  loading="eager"
+                  className="w-full h-full object-cover object-center group-hover:scale-[1.03] transition-all duration-500"
                 />
-
-                {/* Ambient glow at bottom of image */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-5">
-                  <span className="font-serif text-lg text-white font-normal">
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent flex flex-col justify-end p-5">
+                  <span className="text-lg font-bold text-white">
                     {PORTFOLIO_CONFIG.name}
                   </span>
-                  <span className="font-mono text-xs text-primary/90">
+                  <span className="font-mono text-xs text-sky-300 mt-0.5">
                     {PORTFOLIO_CONFIG.title}
                   </span>
-                </div>
-              </div>
-
-              {/* Hardware Test Point chip floating overlay */}
-              <div className="absolute -bottom-5 -right-4 px-3.5 py-2 rounded-xl bg-card border border-border shadow-xl backdrop-blur-md flex items-center gap-2 font-mono text-xs">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-muted-foreground">STATUS:</span>
-                <span className="text-foreground font-semibold">ALL SYSTEMS NOMINAL</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Architectural Impact Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-8 rounded-2xl bg-card border border-border/80 mb-20 shadow-sm">
-          {about.stats.map((stat, idx) => (
-            <div key={idx} className="space-y-1">
-              <span className="font-serif text-4xl sm:text-5xl text-foreground font-normal block tracking-tight">
-                {stat.value}
-              </span>
-              <span className="font-mono text-xs text-muted-foreground block uppercase tracking-wider">
-                {stat.label}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        {/* Skills & Toolchain Section */}
-        <div>
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
-            <div>
-              <div className="inline-flex items-center gap-2 mb-2 font-mono text-xs text-primary uppercase">
-                <Wrench className="w-3.5 h-3.5" />
-                <span>TECHNICAL TOOLCHAIN &amp; STACK</span>
-              </div>
-              <h3 className="font-serif text-3xl sm:text-4xl text-foreground font-normal">
-                Silicon, Firmware &amp; Cloud Matrix
-              </h3>
-            </div>
-
-            {/* Filter Pill */}
-            <div className="flex items-center p-1 rounded-full bg-secondary border border-border self-start">
-              <button
-                onClick={() => setActiveTab('all')}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-mono transition-all ${
-                  activeTab === 'all'
-                    ? 'bg-primary text-primary-foreground font-semibold shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                All Domains
-              </button>
-              <button
-                onClick={() => setActiveTab('hardware')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-mono transition-all ${
-                  activeTab === 'hardware'
-                    ? 'bg-amber-500 text-white font-semibold shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Cpu className="w-3 h-3" />
-                <span>Hardware</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('software')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-mono transition-all ${
-                  activeTab === 'software'
-                    ? 'bg-primary text-primary-foreground font-semibold shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Code2 className="w-3 h-3" />
-                <span>Software</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Interactive Floating / Orbiting Tag Cloud */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {displayedSkills.map((skill, index) => {
-              const isHw = skill.group === 'hardware';
-              return (
-                <div
-                  key={skill.name}
-                  onMouseEnter={() => setHoveredSkill(skill.name)}
-                  onMouseLeave={() => setHoveredSkill(null)}
-                  className={`group relative p-4 rounded-xl border bg-card transition-all duration-200 hover:-translate-y-1 ${
-                    isHw ? 'hover:border-amber-500/50' : 'hover:border-primary/50'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-mono text-xs font-semibold text-foreground group-hover:text-primary transition-colors">
-                      {skill.name}
-                    </span>
-                    <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-secondary text-muted-foreground uppercase">
-                      {skill.category}
-                    </span>
-                  </div>
-
-                  {/* Level progress bar */}
-                  <div className="w-full h-1.5 rounded-full bg-secondary overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-500 ${
-                        isHw ? 'bg-amber-500' : 'bg-primary'
-                      }`}
-                      style={{ width: `${skill.level}%` }}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between mt-2 font-mono text-[11px] text-muted-foreground">
-                    <span>Proficiency</span>
-                    <span>{skill.level}%</span>
+                  <div className="flex items-center gap-2 mt-2 pt-2 border-t border-white/15 font-mono text-[11px] text-slate-300">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                    <span>{PORTFOLIO_CONFIG.location} • English (C2)</span>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Two Complementary Professional Identity Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Software Engineering Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.45 }}
+            className="p-6 sm:p-8 rounded-2xl bg-card border border-border hover:border-primary/50 transition-colors shadow-sm"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-11 h-11 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary">
+                <Code2 className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="font-mono text-[10px] uppercase tracking-wider text-primary font-semibold block">
+                  PRIMARY DISCIPLINE
+                </span>
+                <h3 className="text-xl font-bold text-foreground">Software Engineering</h3>
+              </div>
+            </div>
+
+            <p className="text-sm text-muted-foreground leading-relaxed mb-5">
+              Designing, architecting, and shipping reliable software systems from user-facing React &amp; TypeScript interfaces to structured Node.js/Express backends, REST APIs, and PostgreSQL databases.
+            </p>
+
+            <ul className="space-y-2.5">
+              {softwareCapabilities.map((item, idx) => (
+                <li key={idx} className="flex items-start gap-2.5 text-sm text-foreground/90">
+                  <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+
+          {/* Technical Support Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.45, delay: 0.08 }}
+            className="p-6 sm:p-8 rounded-2xl bg-card border border-border hover:border-cyan-500/50 transition-colors shadow-sm"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-11 h-11 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-500">
+                <Wrench className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="font-mono text-[10px] uppercase tracking-wider text-cyan-500 font-semibold block">
+                  COMPLEMENTARY DISCIPLINE
+                </span>
+                <h3 className="text-xl font-bold text-foreground">
+                  Technical Support &amp; IT Systems
+                </h3>
+              </div>
+            </div>
+
+            <p className="text-sm text-muted-foreground leading-relaxed mb-5">
+              Keeping hardware, operating systems, enterprise applications, servers, and networks healthy through proactive diagnostics, clean installations, security configurations, and user support.
+            </p>
+
+            <ul className="space-y-2.5">
+              {supportCapabilities.map((item, idx) => (
+                <li key={idx} className="flex items-start gap-2.5 text-sm text-foreground/90">
+                  <ShieldCheck className="w-4 h-4 text-cyan-500 shrink-0 mt-0.5" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
         </div>
       </div>
     </section>
