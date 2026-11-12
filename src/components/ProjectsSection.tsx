@@ -904,24 +904,20 @@ export const ProjectsSection: React.FC = () => {
                     <Star className="w-3.5 h-3.5 text-primary" />
                     <span>RECENT &amp; FEATURED REPOSITORIES</span>
                   </div>
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-                    <div className="lg:col-span-2 flex flex-col">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <ProjectCard
+                      repo={featuredRepos[0]}
+                      featured={true}
+                      onSelect={setSelectedRepo}
+                    />
+                    {featuredRepos.slice(1).map(repo => (
                       <ProjectCard
-                        repo={featuredRepos[0]}
-                        featured={true}
+                        key={repo.id}
+                        repo={repo}
+                        featured={false}
                         onSelect={setSelectedRepo}
                       />
-                    </div>
-                    <div className="flex flex-col gap-6 justify-between">
-                      {featuredRepos.slice(1, 3).map(repo => (
-                        <ProjectCard
-                          key={repo.id}
-                          repo={repo}
-                          featured={false}
-                          onSelect={setSelectedRepo}
-                        />
-                      ))}
-                    </div>
+                    ))}
                   </div>
                 </div>
               )}
